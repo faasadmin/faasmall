@@ -32,15 +32,19 @@ http://39.105.97.89:8079/
 <br>密码：faasmall
 
 后台功能导图
-![faasmall商城后台功能](img/admin.png)
+![faasmall商城后台功能](https://gitee.com/faasadmin/faasmall/raw/master/img/admin.png)
 
 ## 部分页面展示
 
-![faasmall商城首页](img/img.png)![faasmall商城首页](img/img1.png)
-![faasmall商城分类](img/img2.png)![faasmall商城购物车](img/img3.png)
-![faasmall商城我的](img/img4.png)![faasmall商城商品页](img/img5.png)
-![faasmall商城商品页](img/img6.png)![faasmall商城商品列表](img/img7.png)
-![faasmall商城商品列表](img/img8.png)
+![faasmall商城首页](https://gitee.com/faasadmin/faasmall/raw/master/img/img.png) <br>
+![faasmall商城首页](https://gitee.com/faasadmin/faasmall/raw/master/img/img1.png) <br>
+![faasmall商城分类](https://gitee.com/faasadmin/faasmall/raw/master/img/img2.png) <br>
+![faasmall商城购物车](https://gitee.com/faasadmin/faasmall/raw/master/img/img3.png) <br>
+![faasmall商城我的](https://gitee.com/faasadmin/faasmall/raw/master/img/img4.png) <br>
+![faasmall商城商品页](https://gitee.com/faasadmin/faasmall/raw/master/img/img5.png) <br>
+![faasmall商城商品页](https://gitee.com/faasadmin/faasmall/raw/master/img/img6.png) <br>
+![faasmall商城商品列表](https://gitee.com/faasadmin/faasmall/raw/master/img/img7.png) <br>
+![faasmall商城商品列表](https://gitee.com/faasadmin/faasmall/raw/master/img/img8.png) <br>
 ## 使用说明
 
 本项目不是用HBuilder X创建的，是通过vue cli的方式创建的，在IDEA下开发的，如果你想在HBuilder X里打开运行，自行研究，应该不难
