@@ -1,0 +1,296 @@
+.left-coupons{
+  width: 100%;
+  height: 100px;
+  position: relative;
+  background: radial-gradient(circle at right top, transparent 10px,  #FF0505 0) top left / 25% 51% no-repeat,
+  radial-gradient(circle at right bottom, transparent 10px,  #FF0505 0) bottom left / 25% 51% no-repeat,
+  radial-gradient(circle at left top, transparent 10px, #fff 0) top right / 75% 51% no-repeat,
+  radial-gradient(circle at left bottom, transparent 10px, #fff 0) bottom right / 75% 51% no-repeat;
+  filter: drop-shadow(3px 3px 3px rgba(0,0,0,.3));
+}
+.left-coupons::before {
+  content: '';
+  height: 80px;
+  border: 1px dashed #FFFFFF;
+  position: absolute;
+  left: 25%;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.left-coupons::after {
+  content: '';
+  position: absolute;
+  height: 100%;
+  width:5px;
+  top: 0;
+  right: -5px;
+  background-image: linear-gradient(to bottom, #fff 5px, transparent 5px, transparent),
+  radial-gradient(10px circle at 5px 10px, transparent 5px, #fff 5px);
+  background-size: 5px 15px;
+}
+
+
+.right-coupons{
+  width: 250px;
+  height: 100px;
+  position: relative;
+  background: radial-gradient(circle at left top, transparent 10px,  #28A4F2 0) top right / 60px 51% no-repeat,
+  radial-gradient(circle at left bottom, transparent 10px,  #28A4F2 0) bottom right /60px 51% no-repeat,
+  radial-gradient(circle at right top, transparent 10px, #eeeeee 0) top left /190px 51% no-repeat,
+  radial-gradient(circle at right bottom, transparent 10px, #eeeeee 0) bottom left /190px 51% no-repeat;
+  filter: drop-shadow(3px 3px 3px rgba(0,0,0,.3));
+}
+.right-coupons::after {
+  content: '';
+  height: 80px;
+  border: 1px dashed #fff;
+  position: absolute;
+  right: 60px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+.right-coupons::before {
+  content: '';
+  position: absolute;
+  height: 100%;
+  width:5px;
+  top: 0;
+  left: -5px;
+  background-image: linear-gradient(to bottom, #eeeeee 5px, transparent 5px, transparent),
+  radial-gradient(10px circle at 5px 10px, transparent 5px, #eeeeee 5px);
+  background-size: 5px 15px;
+}
+
+
+
+.small-coupon {
+  width: 662px;
+  height: 64px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  .small-coupon-left {
+    width: 550px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    .small-coupon-item {
+      display: flex;
+      align-items: center;
+      margin-right: 16px;
+      height: 44px;
+      overflow: hidden;
+      .small-coupon-item-center {
+        border-top: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        height: 44px;
+        //line-height: 42px;
+        //font-size: 24px;
+        //font-family: PingFang SC;
+        //font-weight: 500;
+        //@include font_color('font_color');
+        color: #F6BF29;
+        transform: rotateZ(360deg);
+        //@include border_color('border_color');
+        border-color: red;
+      }
+      .small-coupon-edge {
+        width: 16px;
+        height: 44px;
+        transform: rotateZ(360deg);
+        border-top: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        //@include border_color('border_color');
+        border-color: red;
+        position: relative;
+      }
+    }
+
+
+    .small-coupon-item-left {
+      border-left: 1px solid transparent;
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+    }
+
+    .small-coupon-item-right {
+      border-right: 1px solid transparent;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+
+    .small-edge-doc {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      border-radius: 50%;
+      top: 50%;
+      z-index: 10;
+      border: 1px solid transparent;
+      background: #ffffff;
+      //@include border_color('border_color');
+      border-color: red;
+    }
+
+    .small-coupon-item-left .small-edge-doc {
+      transform: translate(-50%, -50%);
+      left: 0;
+    }
+
+    .small-coupon-item-right .small-edge-doc {
+      transform: translate(50%, -50%);
+      right: 0;
+    }
+  }
+}
+
+
+.coupon-one-style-item {
+  height: 200rpx;
+  margin-bottom: 16px;
+  display: flex;
+  .coupon-one-style-left {
+    width: 60px;
+    border-top: 2px solid transparent;
+    border-left: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+    //@include border_color("border_color");
+    border-color: red;
+    padding: 37px 0 35px 16px;
+    text-align: center;
+
+    .he-item-price {
+      //line-height: 52px;
+      //font-size: 50px;
+      //font-family: DIN-Bold;
+      //font-weight: Bold;
+      //@include font_color("font_color");
+      color:red;
+    }
+
+    .he-item-price:before {
+      content: "￥";
+      //font-size: 24px;
+      //font-family: PingFang SC;
+      //font-weight: 500;
+      //@include font_color("font_color");
+      color:red;
+      line-height: 14px;
+    }
+
+    .he-item-condition {
+      //font-size: 24px;
+      //font-family: PingFang SC;
+      //font-weight: 500;
+      //@include font_color("font_color");
+      color:red;
+      line-height: 36px;
+    }
+  }
+  .coupon-one-style-center {
+    width: 16px;
+    position: relative;
+    overflow: hidden;
+
+    .coupon-one-style-doc {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      border: 2px solid transparent;
+      border-radius: 50%;
+      //@include border_color("border_color");
+      border-color: red;
+    }
+
+    .coupon-one-style-doc:first-child {
+      top: 0;
+      transform: translateY(-50%);
+    }
+
+    .coupon-one-style-doc:nth-child(2) {
+      bottom: 0;
+      transform: translateY(50%);
+    }
+
+    .he-border-line {
+      position: absolute;
+      height: 80px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      background-size: 1px 14px;
+      background-repeat: repeat-y;
+      background-image: linear-gradient(to bottom, red 0%, #491313 50%, transparent 0%),
+    }
+  }
+  .coupon-one-style-right {
+    display: flex;
+    width: 260px;
+    border-top: 2px solid transparent;
+    border-right: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+    //@include border_color("border_color");
+    border-color: red;
+
+    .he-right-left {
+      width: 120px;
+      //padding: 43px 11px 41px 32px;
+
+      .he-item-name {
+        //font-size: 30px;
+        //font-family: PingFang SC;
+        //font-weight: 500;
+        color: #222222;
+        line-height: 40px;
+        margin-bottom: 4px;
+      }
+
+      .he-item-prompt {
+        //font-size: 22px;
+        //font-family: PingFang SC;
+        //font-weight: 500;
+        color: #999999;
+        line-height: 28px;
+        margin-top: 4px;
+      }
+    }
+
+    .he-right-right {
+      width: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .he-cu-btn {
+        width: 126px;
+        height: 48px;
+        border-radius: 24px;
+        //font-size: 22px;
+        //font-family: PingFang SC;
+        //font-weight: 500;
+        padding: 0;
+      }
+
+      .he-left-right_btn {
+        color: #ffffff;
+        //@include background_color("background_color");
+        background-color:red;
+      }
+
+      .he-right-right_btn {
+        border: 1px solid transparent;
+        //@include font_color("font_color");
+        color:red;
+        //@include border_color("border_color");
+        border-color: red;
+        background-color: #ffffff;
+      }
+    }
+  }
+}
