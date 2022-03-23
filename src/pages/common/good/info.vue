@@ -167,6 +167,7 @@
           ref="skuPopup"
           v-model="showSku"
           border-radius="20"
+          :amountType="0"
           :custom-action="findGoodsInfo"
           :mode="form.skuMode"
           :buy-now-text="form.buyNowText"

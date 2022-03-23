@@ -45,7 +45,6 @@ module.exports = {
 	devServer: {
 		proxy: {
 			'/dev-api/': {
-				//target: 'http://wxshop.vipgz4.idcfengye.com',
 				target: 'http://127.0.0.1:8089',
 				ws: true,
 				changeOrigin: true,

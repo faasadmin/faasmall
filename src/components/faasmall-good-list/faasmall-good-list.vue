@@ -2,7 +2,7 @@
   <view class="goods-list">
     <view v-if="type === 'double'" class="goods-double row-center-between">
       <navigator v-for="(item, index) in list" :key="index" class="item bg-white mt-2" hover-class="none" open-type="navigate"
-                 :url="'/pages/goods_details/goods_details?id=' + item.id">
+                 :url="'/pages/common/good/info?id=' + item.id">
         <view class="goods-img" style="width: 347rpx;height:347rpx;">
           <faasmall-custom-image :lazy-load="true" width="347rpx" height="347rpx" radius="10rpx" lazy-load :src="item.thumbnail"></faasmall-custom-image>
         </view>
@@ -44,7 +44,7 @@
       </view>
     </view>
     <view v-if="type === 'one'" class="goods-one mt-2 px-1">
-      <navigator v-for="(item, index) in list" :key="index" class="item bg-white row br20" hover-class="none" open-type="navigate" :url="'/pages/goods_details/goods_details?id=' + item.id">
+      <navigator v-for="(item, index) in list" :key="index" class="item bg-white row br20" hover-class="none" open-type="navigate" :url="'/pages/common/good/info?id=' + item.id">
         <view style="display: flex;align-items: center;justify-content: center;">
           <view class="goods-img" style="width: 200rpx;height:200rpx;">
             <faasmall-custom-image :lazy-load="true" width="200rpx" height="200rpx" radius="6rpx" lazy-load :src="item.thumbnail"></faasmall-custom-image>
@@ -86,10 +86,12 @@ export default {
 
     };
   },
+  created(){
+
+  },
   methods:{
     selectFun(item){
       //item.selected = !item.selected;
-
       this.$set(item, 'selected', !item.selected);
       this.$forceUpdate();
     }

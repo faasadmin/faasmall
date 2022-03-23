@@ -27,7 +27,7 @@
         </view>
       </view>
       <view v-show="!showHistory" class="content">
-        <faasmall-good-list  :list="goodsList"  :type="goodsType"></faasmall-good-list>
+        <faasmall-good-list :list="goodsList" :type="goodsType"></faasmall-good-list>
         <!-- 空白页 -->
         <u-empty v-if="isEmpty === true && goodsList.length === 0" text="暂无数据" mode="list"></u-empty>
         <u-loadmore :status="loadStatus" :icon-type="iconType" :load-text="loadText" @loadmore="getGoodsList"/>
@@ -55,7 +55,7 @@ export default {
         nomore: '实在没有了'
       },
       title:'搜索',
-      goodsType: 'one',
+      goodsType: 'double',
       goodsList: [],
       isEmpty:false,
       searchVal: '',
@@ -90,6 +90,7 @@ export default {
     }
   },
   computed: {
+
   },
   onLoad() {
     debugger
@@ -168,7 +169,6 @@ export default {
       this.getGoodsList();
     },
     getGoodsList(){
-      debugger
       this.title = '商品列表';
       this.showHistory = false
       // if (this.isEmpty === true) {
