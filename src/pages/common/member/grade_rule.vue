@@ -1,6 +1,5 @@
 <template>
     <view>
-      <faasmall-navbar title="会员规则" :is-back="true"></faasmall-navbar>
       <rich-text :nodes="rule"></rich-text>
     </view>
 </template>

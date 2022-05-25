@@ -1,23 +1,14 @@
 <template>
-  <view class="shopro-empty-wrap u-flex-col u-row-center u-col-center" :style="{ 'margin-top': marginTop }">
+  <view class="faasmall-empty-wrap u-flex-col u-row-center u-col-center" :style="{ 'margin-top': marginTop }">
     <image class="empty-img" :src="image" mode="aspectFill"></image>
     <view class="empty-text u-tips-color u-font-26">{{ tipText }}</view>
     <view class="btn-box u-m-t-100" v-if="btnText">
-      <button class="u-reset-button empty-btn" :style="customStyle" hover-class="none" @tap="onBtn">{{ btnText }}</button>
+      <button class="u-reset-button empty-btn" :style="customStyle" hover-class="none" @click="onBtn">{{ btnText }}</button>
     </view>
   </view>
 </template>
 
 <script>
-/**
- * shoproEmpty- 数据为空页
- * @property {String} image - 空白图。
- * @property {String} tipText - 提示语。
- * @property {String} btnText - 按钮文字。
- * @property {String} marginTop - 距离父级距离。
- * @property {Object} customStyle - 自定义按钮样式。
- * @event {Fuction} click - 点击按钮
- */
 export default {
   name: 'faasmallEmpty',
   props: {

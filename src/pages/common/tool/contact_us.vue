@@ -1,6 +1,5 @@
 <template>
   <view>
-    <faasmall-navbar :is-back="true" title="联系我们"></faasmall-navbar>
     <view style="min-height: 100vh;
 display: flex;
 flex-direction: column;

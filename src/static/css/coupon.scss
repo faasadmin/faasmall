@@ -86,14 +86,8 @@
         border-top: 1px solid transparent;
         border-bottom: 1px solid transparent;
         height: 44px;
-        //line-height: 42px;
-        //font-size: 24px;
-        //font-family: PingFang SC;
-        //font-weight: 500;
-        //@include font_color('font_color');
         color: #F6BF29;
         transform: rotateZ(360deg);
-        //@include border_color('border_color');
         border-color: red;
       }
       .small-coupon-edge {
@@ -102,7 +96,6 @@
         transform: rotateZ(360deg);
         border-top: 1px solid transparent;
         border-bottom: 1px solid transparent;
-        //@include border_color('border_color');
         border-color: red;
         position: relative;
       }
@@ -130,7 +123,6 @@
       z-index: 10;
       border: 1px solid transparent;
       background: #ffffff;
-      //@include border_color('border_color');
       border-color: red;
     }
 
@@ -158,35 +150,21 @@
     border-bottom: 2px solid transparent;
     border-top-left-radius: 16px;
     border-bottom-left-radius: 16px;
-    //@include border_color("border_color");
     border-color: red;
     padding: 37px 0 35px 16px;
     text-align: center;
 
-    .he-item-price {
-      //line-height: 52px;
-      //font-size: 50px;
-      //font-family: DIN-Bold;
-      //font-weight: Bold;
-      //@include font_color("font_color");
+    .fm-item-price {
       color:red;
     }
 
-    .he-item-price:before {
+    .fm-item-price:before {
       content: "￥";
-      //font-size: 24px;
-      //font-family: PingFang SC;
-      //font-weight: 500;
-      //@include font_color("font_color");
       color:red;
       line-height: 14px;
     }
 
-    .he-item-condition {
-      //font-size: 24px;
-      //font-family: PingFang SC;
-      //font-weight: 500;
-      //@include font_color("font_color");
+    .fm-item-condition {
       color:red;
       line-height: 36px;
     }
@@ -202,7 +180,6 @@
       position: absolute;
       border: 2px solid transparent;
       border-radius: 50%;
-      //@include border_color("border_color");
       border-color: red;
     }
 
@@ -216,7 +193,7 @@
       transform: translateY(50%);
     }
 
-    .he-border-line {
+    .fm-border-line {
       position: absolute;
       height: 80px;
       top: 50%;
@@ -236,58 +213,46 @@
     border-bottom: 2px solid transparent;
     border-top-right-radius: 16px;
     border-bottom-right-radius: 16px;
-    //@include border_color("border_color");
     border-color: red;
 
-    .he-right-left {
+    .fm-right-left {
       width: 120px;
-      //padding: 43px 11px 41px 32px;
-
-      .he-item-name {
-        //font-size: 30px;
-        //font-family: PingFang SC;
-        //font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      .fm-item-name {
         color: #222222;
         line-height: 40px;
         margin-bottom: 4px;
       }
 
-      .he-item-prompt {
-        //font-size: 22px;
-        //font-family: PingFang SC;
-        //font-weight: 500;
+      .fm-item-prompt {
         color: #999999;
         line-height: 28px;
         margin-top: 4px;
       }
     }
 
-    .he-right-right {
+    .fm-right-right {
       width: 140px;
       display: flex;
       align-items: center;
       justify-content: center;
-      .he-cu-btn {
+      .fm-fs-btn {
         width: 126px;
-        height: 48px;
         border-radius: 24px;
-        //font-size: 22px;
-        //font-family: PingFang SC;
-        //font-weight: 500;
         padding: 0;
       }
 
-      .he-left-right_btn {
+      .fm-left-right-btn {
         color: #ffffff;
-        //@include background_color("background_color");
         background-color:red;
       }
 
-      .he-right-right_btn {
+      .fm-right-right_btn {
         border: 1px solid transparent;
-        //@include font_color("font_color");
         color:red;
-        //@include border_color("border_color");
         border-color: red;
         background-color: #ffffff;
       }

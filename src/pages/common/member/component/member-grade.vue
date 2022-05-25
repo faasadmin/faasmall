@@ -83,7 +83,7 @@
                     <view class="notice u-m-b-10" :style="{ color: color }">仅剩{{ item.stock }}张</view>
                   </view>
                   <view class="card-right u-p-y-20 u-p-r-10 u-flex-col u-row-center u-col-center">
-                    <button class="u-reset-button get-btn u-m-b-10" :style="{ color: color }" @tap="getCoupon(item.id, index)">
+                    <button class="u-reset-button get-btn u-m-b-10" :style="{ color: color }" @click="getCoupon(item.id, index)">
                       {{ item.status_code === 'cannot_get' ? '不可领取' : '领券购买' }}
                     </button>
                   </view>

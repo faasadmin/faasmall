@@ -1,12 +1,13 @@
 <template>
   <view>
-    <faasmall-navbar :is-back="true" title="帮助中心"></faasmall-navbar>
     <view style="background: #FFFFFF">
-      <u-collapse style="padding: 10px">
-        <u-collapse-item :title="item.title" v-for="(item, index) in articleList" :key="index">
+      <u-collapse style="padding: 10px" v-if="articleList.length">
+        <u-collapse-item  :title="item.title" v-for="(item, index) in articleList" :key="index">
           <rich-text :nodes="item.content"></rich-text>
         </u-collapse-item>
       </u-collapse>
+      <!-- 空白页 -->
+      <u-empty v-else text="暂无数据" mode="list"></u-empty>
     </view>
   </view>
 </template>

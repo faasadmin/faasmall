@@ -8,7 +8,9 @@ const config = {
 	// api路径
 	API_PATH: '/api',
 	// 应用ID
-	APP_ID: 'faas-mall-addons',
+	APP_ID: 1649914015,
+	// 应用名称
+	APP_NAME: 'faas-mall-addons',
 	// 小程序ID
 	APPLET_ID:'wx576d07b1e75d4269',
 	// 租户ID
@@ -25,17 +27,26 @@ const config = {
 	TOKEN_KEY: process.env.VUE_APP_TOKEN_KEY,
 	PLATFORM: process.env.VUE_APP_PLATFORM,
 	// 加载动画持续时间(ms)
-	LOADING_DELAY: process.env.VUE_APP_LOADING_DELAY
+	LOADING_DELAY: process.env.VUE_APP_LOADING_DELAY,
+	// 文件地址
+	FILE_URL:'https://faasmall.oss-cn-beijing.aliyuncs.com',
 }
 // 请求地址
 config.getApiUrl = function(suffix, configId) {
 	if (!configId) {
-		configId = config.APP_ID;
+		configId = config.APP_NAME;
 	}
 	if (suffix && !suffix.startsWith('/')) {
 		suffix = '/' + suffix
 	}
-	return config.HOST + config.API_PATH + '/plugins/' + configId + config.API_PATH + suffix;
+	return config.HOST +  '/plugins/' + configId + config.API_PATH + suffix;
+}
+// 请求地址
+config.getServerUrl = function(suffix) {
+	if (suffix && !suffix.startsWith('/')) {
+		suffix = '/' + suffix
+	}
+	return config.HOST +  suffix;
 }
 /**
  * 环境配置

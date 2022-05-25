@@ -2,7 +2,6 @@
   <view class="goods-search">
     <view class="header-wrap">
       <u-sticky offset-top="0" h5-nav-height="0">
-        <faasmall-navbar :is-back="true" :title="title"></faasmall-navbar>
         <view style="padding: 20rpx 20rpx 20rpx 20rpx;border-bottom: 0.5px solid #e6e6e6;background: #FFFFFF">
           <u-search placeholder="请输入关键字" :show-action="false" @focus="showHistory = true" :focus="showHistory" @change="onSearch" @search="onSearch" @clear="clearSearch" v-model="searchVal"  bg-color="#F4F4F4"></u-search>
           <!-- 筛选栏-->
@@ -38,7 +37,7 @@
 
 <script>
 import goodFilter from './components/good-filter.vue';
-import {getGoodPage} from "@/faasmall/api/good";
+import {getGoodList, getGoodPage} from "@/faasmall/api/good";
 import {cleanSearchHistory, getSearchInfo} from "@/faasmall/api/search";
 import platform from "@/faasmall/utils/platform";
 import jwt from '@/faasmall/utils/cache/jwt.js';
@@ -62,6 +61,8 @@ export default {
       showHistory: false,
       params: {
         categoryId:0,
+        //优惠卷ID
+        couponId:undefined,
         pageNo: 1,
         keywords: '',
         pageSize: 10,
@@ -94,22 +95,27 @@ export default {
   },
   onLoad() {
     debugger
+    if(this.$Route.query.couponId){
+      this.params.couponId = this.$Route.query.couponId;
+    }
     if (this.$Route.query.id) {
       this.params.categoryId = this.$Route.query.id;
-      this.getGoodsList();
+      this.getGoodListPage();
     } else if (this.$Route.query.hasOwnProperty('keywords')) {
       this.params.keywords = this.$Route.query.keywords;
       this.searchVal = this.$Route.query.keywords;
-      !this.$Route.query.keywords && this.getGoodsList();
+      !this.$Route.query.keywords && this.getGoodListPage();
     }else if (this.$Route.query.hasOwnProperty('search')) {
       this.showHistory = true;
-    }else {
-      this.getGoodsList();
+    } else if (this.$Route.query.hasOwnProperty('goodIds')) {
+      this.getGoodsList(this.$Route.query.goodIds);
+    } else {
+      this.getGoodListPage();
     }
   },
   // 触底加载更多
   onReachBottom() {
-    this.getGoodsList();
+    this.getGoodListPage();
   },
   methods: {
     getSearch(){
@@ -135,7 +141,7 @@ export default {
       this.params.pageNo = 1;
       this.clear();
       this.loadStatus = 'loadmore';
-      this.$u.debounce(this.getGoodsList);
+      this.$u.debounce(this.getGoodListPage);
     },
     // 键盘搜索,输入搜索
     onSearch() {
@@ -145,7 +151,7 @@ export default {
       this.params.pageNo = 1;
       this.params.keywords = this.searchVal;
       this.clear();
-      this.$u.debounce(this.getGoodsList);
+      this.$u.debounce(this.getGoodListPage);
     },
     clear() {
       this.goodsList = [];
@@ -166,9 +172,18 @@ export default {
     onSetKeyword(item){
       this.searchVal = item
       this.showHistory = false
-      this.getGoodsList();
+      this.getGoodListPage();
     },
-    getGoodsList(){
+    getGoodsList(goodIds){
+      getGoodList({goodIds:goodIds}).then((res)=>{
+        if(res.code === 0){
+          this.goodsList = res.data.list;
+        }
+      }).catch(error=>{
+        console.error(error)
+      })
+    },
+    getGoodListPage(){
       this.title = '商品列表';
       this.showHistory = false
       // if (this.isEmpty === true) {

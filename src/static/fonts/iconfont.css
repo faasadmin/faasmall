@@ -1,8 +1,8 @@
 @font-face {
   font-family: 'iconfont';  /* Project id 2843339 */
-  src: url('https://at.alicdn.com/t/font_2843339_f78b2letfpw.woff2?t=1639306101813') format('woff2'),
-  url('https://at.alicdn.com/t/font_2843339_f78b2letfpw.woff?t=1639306101813') format('woff'),
-  url('https://at.alicdn.com/t/font_2843339_f78b2letfpw.ttf?t=1639306101813') format('truetype');
+  src: url('https://at.alicdn.com/t/font_2843339_pkuca3ehro.woff2?t=1651650819303') format('woff2'),
+  url('https://at.alicdn.com/t/font_2843339_pkuca3ehro.woff?t=1651650819303') format('woff'),
+  url('https://at.alicdn.com/t/font_2843339_pkuca3ehro.ttf?t=1651650819303') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,66 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-weipingjia:before {
+  content: "\e632";
+}
+
+.icon-pingjia1:before {
+  content: "\e634";
+}
+
+.icon-jifen2:before {
+  content: "\e640";
+}
+
+.icon-renwu:before {
+  content: "\e615";
+}
+
+.icon-weigouxuan:before {
+  content: "\e688";
+}
+
+.icon-jifen3:before {
+  content: "\f975";
+}
+
+.icon-huiyuan:before {
+  content: "\e643";
+}
+
+.icon-zhanghuyue:before {
+  content: "\e619";
+}
+
+.icon-jifen:before {
+  content: "\e614";
+}
+
+.icon-youhuiquan1:before {
+  content: "\e623";
+}
+
+.icon-jifen1:before {
+  content: "\e7cc";
+}
+
+.icon-weixinzhifu:before {
+  content: "\e620";
+}
+
+.icon-zhifubaozhifu:before {
+  content: "\e65f";
+}
+
+.icon-youhui:before {
+  content: "\e774";
+}
+
+.icon-yue:before {
+  content: "\e69f";
 }
 
 .icon-paihangbang:before {

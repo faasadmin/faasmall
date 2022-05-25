@@ -30,11 +30,18 @@
       </view>
       <view v-else>
         <view v-if="source === 'member_center'">
-          <text  @tap.stop="receiveCoupon(item.id)">立即领取</text>
+          <!-- #ifdef MP-WEIXIN -->
+          <text @tap="receiveCoupon(item.id)">立即领取</text>
+          <!-- #endif -->
+          <!-- #ifdef H5 -->
+          <faasmall-open-subscribe @open-subscribe-success="receiveCoupon" :template-id="templateIds" :digital="item.id">
+            <text>立即领取</text>
+          </faasmall-open-subscribe>
+          <!-- #endif -->
         </view>
         <view v-else>
           <text v-if="item.status === 1" @tap="$Router.push({ path: '/pages/common/coupon/info', query: { id:item.couponId} })">立即使用</text>
-          <u-image class="he-item-image" v-else :src="item.status | img()" style="width: 60px;height: 60px" />
+          <u-image v-else :src="item.status | img()" style="width: 60px;height: 60px" />
         </view>
       </view>
     </view>
@@ -44,6 +51,7 @@
 
 <script>
 import {receiveCoupon} from "@/faasmall/api/member";
+import {mapGetters} from "vuex";
 
 export default {
   components: {
@@ -88,14 +96,20 @@ export default {
       default: '#FF4A26'
     },
   },
+  computed: {
+    ...mapGetters(['subscribeData']),
+    templateIds: function() {
+      return [this.subscribeData.couponExpiresTid];
+    },
+  },
   filters: {
     img: function (type) {
       if (type === 1) {
-        return '/static/img/coupon/coupon-used-icon.png';
+        return this.$FILE_URL + '/file/img/coupon/coupon-used-icon.png';
       } else if (type === 2) {
-        return '/static/img/coupon/coupon-expired-icon.png';
+        return this.$FILE_URL + '/file/img/coupon/coupon-expired-icon.png';
       } else if (type === 3) {
-        return '/static/img/coupon/coupon-unable-icon.png';
+        return this.$FILE_URL + '/file/img/coupon/coupon-unable-icon.png';
       }
     },
     setNumber: function (num) {
@@ -119,6 +133,7 @@ export default {
         if(res.code === 0 ){
           this.$refs.uToast.show({
             title: '领取成功',
+            type: 'success'
           })
         }
       }).catch(err=>{
@@ -164,7 +179,7 @@ export default {
     text-align: center;
     -webkit-transform: rotate(45deg);
     -moz-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
+    -faas-transform: rotate(45deg);
     -o-transform: rotate(45deg);
     position: relative;
     padding: 2px 0;
@@ -175,7 +190,7 @@ export default {
     background-image: -webkit-gradient(linear, left top, left bottom, from(#ff503e), to(#ff2f50));
     background-image: -webkit-linear-gradient(top, #ff503e, #ff2f50);
     background-image: -moz-linear-gradient(top, #ff503e, #ff2f50);
-    background-image: -ms-linear-gradient(top, #ff503e, #ff2f50);
+    background-image: -faas-linear-gradient(top, #ff503e, #ff2f50);
     background-image: -o-linear-gradient(top, #ff503e, #ff2f50);
     -webkit-box-shadow: 0px 0px 3px #ff1b40;
     -moz-box-shadow: 0px 0px 3px #ff1b40;

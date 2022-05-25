@@ -11164,6 +11164,11 @@
   "resolved" "https://registry.npm.taobao.org/vue-hot-reload-api/download/vue-hot-reload-api-2.3.4.tgz"
   "version" "2.3.4"
 
+"vue-jsonp@^2.0.0":
+  "integrity" "sha512-Mzd9GNeuKP5hHFDWZNMWOsCuMILSkA6jo2l4A02wheFz3qqBzH7aSEFTey1BRCZCLizlaf1EqJ5YUtF392KspA=="
+  "resolved" "https://registry.npmmirror.com/vue-jsonp/-/vue-jsonp-2.0.0.tgz"
+  "version" "2.0.0"
+
 "vue-loader-v16@npm:vue-loader@^16.1.0":
   "integrity" "sha1-1D5nXe9bqTRdbH8FkUwT2GGZcIc="
   "resolved" "https://registry.npmmirror.com/vue-loader/download/vue-loader-16.8.3.tgz"

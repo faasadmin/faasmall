@@ -1,5 +1,5 @@
 import setting from '../../common/config.js';
-import {cacheKey, platformType} from '../../common/constant.js';
+import {cacheKey, commonConstant, platformType} from '../../common/constant.js';
 import {isNotEmpty,isEmpty} from "@/faasmall/utils/faasmall";
 import platform from "@/faasmall/utils/platform";
 import storage from "@/faasmall/utils/storage";
@@ -38,28 +38,63 @@ const clearAccessToken = function () {
     }
 }
 //设置userinfo
-const setUser = (user) => {
+const setUserInfo = (user) => {
     try {
-        uni.setStorageSync(cacheKey.USER_INFO, user);
+        uni.setStorageSync(cacheKey.MEMBER_INFO, user);
         return true;
     } catch (e) {
         return false;
     }
 }
 //获取userinfo
-const getUser = function () {
+const getUserInfo = function () {
     try {
-        return uni.getStorageSync(cacheKey.USER_INFO) || {
+        return uni.getStorageSync(cacheKey.MEMBER_INFO) || {
+            avatar: commonConstant.avatar
+        };
+        //return uni.getStorageSync(cacheKey.MEMBER_INFO);
+    } catch (e) {
+        return false;
+    }
+}
+//清除userinfo
+const clearMemberInfo = function () {
+    try {
+        uni.removeStorageSync(cacheKey.MEMBER_INFO)
+    } catch (e) {
+    }
+}
+//设置userData
+const setUserData = (user) => {
+    try {
+        uni.setStorageSync(cacheKey.MEMBER_DATA, user);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+//获取userData
+const getUserData = function () {
+    try {
+        return uni.getStorageSync(cacheKey.MEMBER_DATA) || {
             commission:0
         };
     } catch (e) {
         return false;
     }
 }
-//清除userinfo
-const clearUser = function () {
+//清除userData
+const clearMemberData = function () {
     try {
-        uni.removeStorageSync(cacheKey.USER_INFO)
+        uni.removeStorageSync(cacheKey.MEMBER_DATA)
+    } catch (e) {
+    }
+}
+
+//清除token
+const clearSessionId = function () {
+    try {
+        uni.removeStorageSync(cacheKey.SESSION_ID);
     } catch (e) {
     }
 }
@@ -67,7 +102,7 @@ const clearUser = function () {
 //设置openId
 const setOpenId = (openId) => {
     try {
-        uni.setStorageSync(cacheKey.USER_OPEN_ID, openId);
+        uni.setStorageSync(cacheKey.MEMBER_OPEN_ID, openId);
         return true;
     } catch (e) {
         return false;
@@ -76,7 +111,7 @@ const setOpenId = (openId) => {
 //获取openId
 const getOpenId = function () {
     try {
-        return uni.getStorageSync(cacheKey.USER_OPEN_ID)
+        return uni.getStorageSync(cacheKey.MEMBER_OPEN_ID)
     } catch (e) {
         return false;
     }
@@ -84,40 +119,39 @@ const getOpenId = function () {
 //清除openId
 const clearOpenId = function () {
     try {
-        uni.removeStorageSync(cacheKey.USER_OPEN_ID)
+        uni.removeStorageSync(cacheKey.MEMBER_OPEN_ID)
     } catch (e) {
     }
 }
 
-//是否登陆
-const isLogin = function (){
-    return !isNotLogin();
+
+const getLogin = function () {
+    try {
+        return uni.getStorageSync(cacheKey.IS_LOGIN) || false;
+    } catch (e) {
+        return false;
+    }
+}
+const setLogin = function (data) {
+    try {
+        uni.setStorageSync(cacheKey.IS_LOGIN, data)
+    } catch (e) {
+    }
 }
 
-//是否没有登陆
-const isNotLogin = function (){
-    var accessToken = getAccessToken();
-    if(isEmpty(accessToken)){
-        return true;
+const clearLogin = function () {
+    try {
+        uni.removeStorageSync(cacheKey.IS_LOGIN)
+    } catch (e) {
     }
-    return false;
 }
 
 //验证是否需要登陆
 const verifyLogin = function (){
-    var flag = isNotLogin();
-    if(flag){
-        var loginUrl = "pages/common/login/h5_model";
-        var pf = platform.get();
-        if(platformType.app === pf){
-            loginUrl = "pages/common/login/app_model";
-        }else if(platformType.wxMiniProgram === pf){
-            loginUrl = "pages/common/login/applets_model";
-        }else if(platformType.wxOfficialAccount === pf){
-            loginUrl = "pages/common/login/app_model";
-        }
+    var flag = getLogin();
+    if(!flag){
         uni.redirectTo({
-            url: loginUrl
+            url: "pages/common/login/index"
         });
     }
 }
@@ -125,7 +159,7 @@ const verifyLogin = function (){
 //刷新用户信息
 function refreshMemberInfo() {
     getMemberInfo().then((res)=>{
-        setUser(res.data);
+        setUserInfo(res.data);
     }).catch(err=>{
         console.error(err)
     })
@@ -150,7 +184,13 @@ function checkTokenValid() {
 //退出登陆
 function logout(){
     clearAccessToken();
-    clearUser();
+    clearMemberData();
+    clearMemberInfo();
+    clearOpenId();
+    clearAccount();
+    clearPassword();
+    clearLogin();
+    //clearSessionId();
 }
 
 //获取登陆账号
@@ -161,6 +201,13 @@ function getAccount(){
 //设置账号
 function setAccount(data){
     return uni.setStorageSync(cacheKey.ACCOUNT,data);
+}
+
+function clearAccount(){
+    try {
+        uni.removeStorageSync(cacheKey.ACCOUNT)
+    } catch (e) {
+    }
 }
 
 
@@ -174,6 +221,12 @@ function setPassword(data){
     return uni.setStorageSync(cacheKey.PASSWORD,data);
 }
 
+function clearPassword(){
+    try {
+        uni.removeStorageSync(cacheKey.PASSWORD)
+    } catch (e) {
+    }
+}
 
 //自动登陆
 function autoLogin(){
@@ -197,14 +250,15 @@ export default {
     getAccessToken,
     setAccessToken,
     clearAccessToken,
-    getUser,
-    setUser,
-    clearUser,
+    getUserInfo,
+    setUserInfo,
+    clearMemberInfo,
+    getUserData,
+    setUserData,
+    clearMemberData,
     setOpenId,
     getOpenId,
     clearOpenId,
-    isLogin,
-    isNotLogin,
     verifyLogin,
     checkTokenValid,
     refreshMemberInfo,
@@ -213,5 +267,8 @@ export default {
     getPassword,
     setPassword,
     setAccount,
-    autoLogin
+    autoLogin,
+    getLogin,
+    clearLogin,
+    setLogin
 }

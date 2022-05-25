@@ -13,7 +13,10 @@
 				"auth": false
 			},
 			"style": {
-				"navigationBarTitleText": "首页"
+				"navigationBarTitleText": "首页",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -50,7 +53,7 @@
 			}
 		},
 		{
-			"path": "pages/common/order/confirm",
+			"path": "pages/common/order/submit",
 			"name":"orderConfigrm",
 			"meta":{
 				"auth": true,
@@ -61,14 +64,58 @@
 			}
 		},
 		{
-			"path": "pages/common/order/after_sale",
-			"name":"orderAfterSale",
+			"path": "pages/common/order/afterSale/after_sale_list",
+			"name":"afterSaleList",
 			"meta":{
 				"auth": true,
-				"title": "订单售后"
+				"title": "售后订单"
 			},
 			"style": {
-				"navigationBarTitleText": "订单售后"
+				"navigationBarTitleText": "售后订单"
+			}
+		},
+		{
+			"path": "pages/common/order/afterSale/after_sale_operate",
+			"name":"afterSaleOperate",
+			"meta":{
+				"auth": true,
+				"title": "售后操作"
+			},
+			"style": {
+				"navigationBarTitleText": "售后操作"
+			}
+		},
+		{
+			"path": "pages/common/order/afterSale/alter_sale_return",
+			"name":"alterSaleReturnAddress",
+			"meta":{
+				"auth": true,
+				"title": "退货信息"
+			},
+			"style": {
+				"navigationBarTitleText": "退货信息"
+			}
+		},
+		{
+			"path": "pages/common/order/afterSale/after_sale_apply",
+			"name":"afterSaleApply",
+			"meta":{
+				"auth": true,
+				"title": "售后申请"
+			},
+			"style": {
+				"navigationBarTitleText": "售后申请"
+			}
+		},
+		{
+			"path": "pages/common/order/afterSale/after_sale_info",
+			"name":"afterSaleInfo",
+			"meta":{
+				"auth": true,
+				"title": "售后申请"
+			},
+			"style": {
+				"navigationBarTitleText": "售后申请"
 			}
 		},
 		{
@@ -80,6 +127,39 @@
 			},
 			"style": {
 				"navigationBarTitleText": "买家留言"
+			}
+		},
+		{
+			"path": "pages/common/order/logistics",
+			"name":"logistics",
+			"meta":{
+				"auth": true,
+				"title": "订单物流"
+			},
+			"style": {
+				"navigationBarTitleText": "订单物流"
+			}
+		},
+		{
+			"path": "pages/common/order/package",
+			"name":"package",
+			"meta":{
+				"auth": true,
+				"title": "包裹信息"
+			},
+			"style": {
+				"navigationBarTitleText": "包裹信息"
+			}
+		},
+		{
+			"path": "pages/common/order/evaluation",
+			"name":"evaluation",
+			"meta":{
+				"auth": true,
+				"title": "商品评价"
+			},
+			"style": {
+				"navigationBarTitleText": "商品评价"
 			}
 		},
 		{
@@ -98,15 +178,15 @@
 			"name":"addressAdd",
 			"meta":{
 				"auth": true,
-				"title": "地址编辑"
+				"title": "收货地址"
 			},
 			"style": {
-				"navigationBarTitleText": "地址编辑"
+				"navigationBarTitleText": "收货地址"
 			}
 		},
 		{
-			"path": "pages/common/login/app_model",
-			"name":"app_login",
+			"path": "pages/common/login/index",
+			"name":"login",
 			"meta":{
 				"auth": false,
 				"title": "登录"
@@ -116,25 +196,14 @@
 			}
 		},
 		{
-			"path": "pages/common/login/h5_model",
-			"name":"h5_login",
+			"path": "pages/common/login/forgot_pwd",
+			"name":"forgotPwd",
 			"meta":{
 				"auth": false,
-				"title": "登录"
+				"title": "忘记密码"
 			},
 			"style": {
-				"navigationBarTitleText": "登录"
-			}
-		},
-		{
-			"path": "pages/common/login/applets_model",
-			"name":"applets_login",
-			"meta":{
-				"auth": false,
-				"title": "登录"
-			},
-			"style": {
-				"navigationBarTitleText": "登录"
+				"navigationBarTitleText": "忘记密码"
 			}
 		},
 		{
@@ -157,6 +226,17 @@
 			},
 			"style": {
 				"navigationBarTitleText": "忘记密码"
+			}
+		},
+		{
+			"path": "pages/common/tool/logistics_company",
+			"name":"物流公司",
+			"meta":{
+				"auth": true,
+				"title": "物流公司"
+			},
+			"style": {
+				"navigationBarTitleText": "物流公司"
 			}
 		},
 		{
@@ -237,6 +317,17 @@
 			}
 		},
 		{
+			"path": "pages/common/good/evaluation",
+			"name":"goodEvaluation",
+			"meta":{
+				"auth": false,
+				"title": "商品评价"
+			},
+			"style": {
+				"navigationBarTitleText": "商品评价"
+			}
+		},
+		{
 			"path": "pages/common/public/search",
 			"name":"search",
 			"meta":{
@@ -245,6 +336,16 @@
 			},
 			"style": {
 				"navigationBarTitleText": "商品搜索"
+			}
+		},{
+			"path": "pages/common/public/loading",
+			"name":"loading",
+			"meta":{
+				"auth": false,
+				"title": "加载中"
+			},
+			"style": {
+				"navigationBarTitleText": "加载中"
 			}
 		},
 		{
@@ -313,19 +414,30 @@
 			}
 		},
 		{
-			"path": "pages/common/balance/index",
-			"name":"balance",
+			"path": "pages/common/integral/exchange",
+			"name":"exchange",
 			"meta":{
 				"auth": true,
-				"title": "我的余额"
+				"title": "积分商城"
 			},
 			"style": {
-				"navigationBarTitleText": "我的余额"
+				"navigationBarTitleText": "积分商城"
 			}
 		},
 		{
-			"path": "pages/common/balance/recharge",
-			"name":"balanceRecharge",
+			"path": "pages/common/wallet/index",
+			"name":"wallet",
+			"meta":{
+				"auth": true,
+				"title": "我的钱包"
+			},
+			"style": {
+				"navigationBarTitleText": "我的钱包"
+			}
+		},
+		{
+			"path": "pages/common/wallet/recharge",
+			"name":"walletRecharge",
 			"meta":{
 				"auth": true,
 				"title": "余额充值"
@@ -335,14 +447,36 @@
 			}
 		},
 		{
-			"path": "pages/common/balance/detail",
-			"name":"balanceDetail",
+			"path": "pages/common/wallet/recharge_log",
+			"name":"rechargeLog",
 			"meta":{
 				"auth": true,
-				"title": "余额明细"
+				"title": "充值记录"
 			},
 			"style": {
-				"navigationBarTitleText": "余额明细"
+				"navigationBarTitleText": "充值记录"
+			}
+		},
+		{
+			"path": "pages/common/wallet/withdraw",
+			"name":"withdraw",
+			"meta":{
+				"auth": true,
+				"title": "余额提现"
+			},
+			"style": {
+				"navigationBarTitleText": "余额提现"
+			}
+		},
+		{
+			"path": "pages/common/wallet/withdraw_log",
+			"name":"withdrawLog",
+			"meta":{
+				"auth": true,
+				"title": "提现记录"
+			},
+			"style": {
+				"navigationBarTitleText": "提现记录"
 			}
 		},
 		{
@@ -463,6 +597,26 @@
 				"navigationBarTitleText": "分销申请"
 			}
 		},{
+			"path": "pages/common/distribution/protocol",
+			"name":"distributionProtocolr",
+			"meta":{
+				"auth": true,
+				"title": "分销协议"
+			},
+			"style": {
+				"navigationBarTitleText": "分销协议"
+			}
+		},{
+			"path": "pages/common/distribution/recruit",
+			"name":"distributionRecruit",
+			"meta":{
+				"auth": true,
+				"title": "分销招募"
+			},
+			"style": {
+				"navigationBarTitleText": "分销招募"
+			}
+		},{
 			"path": "pages/common/distribution/offline",
 			"name":"distributionOffline",
 			"meta":{
@@ -540,7 +694,10 @@
 				"title": "富文本"
 			},
 			"style": {
-				"navigationBarTitleText": "富文本"
+				"navigationBarTitleText": "富文本",
+				"navigationBarTextStyle": "white",
+				"enablePullDownRefresh": true,
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -559,8 +716,7 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uView",
 		"navigationBarBackgroundColor": "#FFFFFF",
-		"backgroundColor": "#FFFFFF",
-		"navigationStyle": "custom"
+		"backgroundColor": "#FFFFFF"
 	},
 	"tabBar": {
 		"color": "#666666",

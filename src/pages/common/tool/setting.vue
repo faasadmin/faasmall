@@ -1,8 +1,7 @@
 <template>
   <view>
-    <faasmall-navbar :is-back="true" title="系统设置"></faasmall-navbar>
     <view class="container">
-      <view class="logo-box">
+      <view class="logo-box col-center-center">
         <image :src="shopData.logo" mode="aspectFit"></image>
         <view class="flex justify-center align-center" style="padding: 40rpx">{{shopData.shopName}}</view>
       </view>

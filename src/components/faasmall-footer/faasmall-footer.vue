@@ -3,7 +3,7 @@
     <view v-if="status === 'nomore'" class="empty">
       <text v-if="!slotEmpty">
         <!-- 缺省页 -->
-        <faasmall-empty v-if="empty" image="/static/img/good/empty_goods.png" tipText="暂无该商品，还有更多好货等着你噢~"></faasmall-empty>
+        <faasmall-empty v-if="empty" :image="$FILE_URL + '/file/img/good/empty_goods.png'" tipText="暂无该商品，还有更多好货等着你噢~"></faasmall-empty>
       </text>
       <slot name="empty" v-else></slot>
     </view>
@@ -21,7 +21,9 @@
 
 export default {
   data() {
+    const _this = this;
     return {
+      $FILE_URL: _this.$FILE_URL,
       status: 'loadmore',
       loadingText: '努力加载中',
       loadmoreText: '轻轻上拉',
@@ -29,6 +31,7 @@ export default {
     }
   },
   components: {
+
   },
   props: {
     empty:{

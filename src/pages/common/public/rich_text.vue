@@ -1,7 +1,7 @@
 <!-- 富文本 -->
 <template>
   <view>
-    <faasmall-navbar :title="title" :is-back="true"></faasmall-navbar>
+    <faasmall-navbar :backText="title"></faasmall-navbar>
     <view class="rich-wrap">
       <view class="content_box"><u-parse :html="content"></u-parse></view>
     </view>
@@ -27,10 +27,7 @@ export default {
     console.log(this.$Route.query.type)
     debugger
     if(this.$isNotEmpty(this.$Route.query.type)){
-      var type = this.$Route.query.type; // 0 ==> 关于我们 1 ==> 隐私政策 2 ==> 售后保障
-      // uni.setNavigationBarTitle({
-      //   title: type === 'about' ? '关于我们' : type === 'privacy' ? '隐私政策' : '注册协议'
-      // });
+      var type = this.$Route.query.type;
       this.title = type === 'about' ? '关于我们' : type === 'privacy' ? '隐私政策' : '注册协议';
       switch (type) {
         case 'about':
@@ -39,11 +36,13 @@ export default {
         case 'privacy':
           this.content = this.shopData.privacy;
           break;
-        default:
+        case 'register':
           this.content = this.shopData.register;
           break;
       }
-    }else{
+    } if(this.$isNotEmpty(this.$Route.query.content)){
+      this.content = this.$Route.query.content;
+    } else {
       this.$Route.query.id && this.getRichText();
     }
   },

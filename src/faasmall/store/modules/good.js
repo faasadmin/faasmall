@@ -1,21 +1,34 @@
 import {addFootPrint} from "@/faasmall/api/footprint";
 import {addCollect,goodCollectExist} from "@/faasmall/api/collect";
+import {getRecommendGood} from "@/faasmall/api/good";
 
 const state = {
-    goodInfo: {}
+    goodInfo: {},
+    recommendGood:[]
 }
 
 
 const getters = {
     goodInfo: state => state.goodInfo,
+    recommendGood: state => state.recommendGood,
 }
 
 
 const mutations = {
-
+    recommendGood: function (state, data) {
+        state.recommendGood = data;
+    }
 }
 
 const actions = {
+    recommendGood({ getters, commit }){
+        if (getters.recommendGood.length === 0) {
+            getRecommendGood({isTask:0}).then(function (res) {
+                debugger
+                commit('recommendGood', res.data);
+            });
+        }
+    },
     addFootPrint({commit,dispatch}, data){
         addFootPrint(data).then(res => {}).catch(err => {
             console.error(err);

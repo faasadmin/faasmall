@@ -1,7 +1,6 @@
 <template>
   <view>
     <u-toast ref="uToast"/>
-    <faasmall-navbar title="购物车"></faasmall-navbar>
     <view>
       <view v-show="!empty" class="head_box">
         <view class="tool-box u-flex u-row-between">
@@ -22,7 +21,7 @@
                 <view style="height: 160rpx"></view>
               </u-checkbox>
               <view class="goods-wrap">
-                <view class="goods-box u-flex u-col-top" @tap="click">
+                <view class="goods-box u-flex u-col-top" @tap="$Router.push({path:'/pages/common/good/info',query:{id:good.goodId}})">
                   <u-image :src="good.thumbnail" class="goods_img" height="90px" width="90px"></u-image>
                   <view class="u-m-l-20">
                     <view class="goods-title u-ellipsis-2 u-m-b-10">{{ good.name }}</view>
@@ -34,7 +33,7 @@
                       <u-number-box
                           :index="index"
                           :long-press="false"
-                          :max="good.price ? good.stocks : 0"
+                          :max="!good.price ? 0: (good.stocks > 999 ? 999 : good.stocks)"
                           :min="0"
                           :step="1"
                           :value="good.number"
@@ -52,7 +51,7 @@
         </scroll-view>
 
         <!-- 数据为空 -->
-        <faasmall-empty v-if="empty" image="/static/img/good/empty_cart.png" tipText="购物车空空如也,快去逛逛吧~"></faasmall-empty>
+        <faasmall-empty v-if="empty" :image="$FILE_URL + '/file/img/good/empty_cart.png'" tipText="购物车空空如也,快去逛逛吧~"></faasmall-empty>
       </view>
       <view style="height: 60px;" v-show="!empty">
         <view class="good-footer">
@@ -62,8 +61,8 @@
             </u-checkbox>
             <view class="u-flex">
               <view v-show="!isTool" class="price">￥{{ totalCount.totalPrice.toFixed(2) }}</view>
-              <u-button v-show="!isTool" shape="square" :disabled="!isSel"  @tap="onPay" type="error">结算</u-button>
-              <u-button v-show="isTool" shape="square" @tap="goodsDelete" type="warning">删除</u-button>
+              <u-button v-show="!isTool" shape="square" :disabled="!isSel"  @click="onPay" type="error">结算</u-button>
+              <u-button v-show="isTool" shape="square" @click="goodsDelete" type="warning">删除</u-button>
             </view>
           </view>
         </view>
@@ -79,7 +78,9 @@ let timer = null;
 export default {
   components: {},
   data() {
+    const _this = this;
     return {
+      $FILE_URL: _this.$FILE_URL,
       isTool: false
     };
   },
@@ -150,7 +151,7 @@ export default {
             });
           }
         }
-        that.jump('/pages/common/order/confirm', {goodList: conFirmCartList,source:'cart',type:1});
+        that.jump('/pages/common/order/submit', {goodList: conFirmCartList,source:'cart',type:1});
       }
     },
     // 删除

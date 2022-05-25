@@ -3,6 +3,13 @@ import App from './App'
 import faasmall from "@/faasmall";
 import uView from "uview-ui";
 import store from '@/faasmall/store';
+import {cacheKey} from './faasmall/common/constant.js';
+import setting from '@/faasmall/common/config.js';
+
+// #ifdef H5
+import { VueJsonp } from 'vue-jsonp';
+Vue.use(VueJsonp);
+// #endif
 
 //-----------------集成uni-simple-router--------------------------
 import {router,RouterMount} from './faasmall/common/router.js'  //路径换成自己的
@@ -25,6 +32,14 @@ const i18n = new VueI18n({
     'en': English,
   }
 });
+
+// #ifdef H5
+Vue.config.ignoredElements.push('wx-open-subscribe');
+Vue.config.ignoredElements.push('wx-open-launch-weapp');
+// #endif
+
+Vue.prototype.$storageKey = cacheKey.ADDRESS_JSON;
+Vue.prototype.$FILE_URL = setting.FILE_URL;
 
 async function start() {
   Vue.config.productionTip = false

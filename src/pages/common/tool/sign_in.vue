@@ -1,27 +1,36 @@
 <template>
     <view>
-      <faasmall-navbar :is-back="true" title="签到"></faasmall-navbar>
       <scroll-view scroll-y="true" class="scroll-Y">
         <view class="sign_container">
           <view class="sign_top">
-            <view class="sign_user_info">
-              <view class="sign_user_info_left">
-                <image :src="avatar" style="width: 48px;height: 48px;border-radius: 25px;"></image>
-                <view class="sign_user_info_left_desc">
-                  <view class="sign_user_info_left_desc_continuous">已连续签到{{signInfo.signCount}}天</view>
-                  <view class="sign_user_info_left_desc_note"></view>
-                </view>
-              </view>
-              <view class="sign_user_info_right">
-                <image src="/static/img/sign/gold.png" style="width: 32px;height: 32px;"></image>
-                <view class="sign_user_info_right_gold">{{signInfo.total}}</view>
+            <view class="sign_user_info" style="width:100%;">
+              <view class="sign_user_info_left" style="width:100%;">
+                  <view class="flex-column" style="width:100%;">
+                    <view style="color: #FFFFFF">当前积分</view>
+                    <view class="row-center-center mt-3" style="width:100%;justify-content: space-between;">
+                      <view class="row-center-center">
+                        <image :src="$FILE_URL + '/file/img/sign/gold.png'" style="width: 45px;height: 45px;"></image>
+                        <view class="sign_user_info_right_gold">{{signInfo.total}}</view>
+                        <view class="row-center-center ml-2" style="color: #FFFFFF">
+                          <view>明细</view>
+                          <text class="iconfont icon-page-next1" style="font-size:10px;"></text>
+                        </view>
+                      </view>
+                      <view class="sign_user_info_right">
+                        <view>兑换商城</view>
+                      </view>
+                    </view>
+                  </view>
               </view>
             </view>
           </view>
           <view class="sign_content">
             <view class="sign_continuous_wrap">
               <view class="sign_continuous">
-                <view class="sign_title">每日签到,获得5积分,联系签到7天,可额外获得10积分</view>
+                <view class="sign_title">
+                  <text>每日签到,获得5积分,联系签到7天,可额外获得10积分</text>
+                  <text>已连续签到{{signInfo.signCount}}天</text>
+                </view>
                 <view style="height: 1px;width: 100%;background: #E5E5E5;"></view>
                 <view class="sign_day_wrap">
                   <view class="sign_day_row" style="margin-bottom: 10px;">
@@ -44,79 +53,73 @@
 
                     </view>
                     <view class="sign_day_box">
-                      <view class="sign_day_hiddle">
-                        隐藏大礼
-                        <view class="info-panel-triple"></view>
+
+                    </view>
+                  </view>
+                  <view class="sign_day_row">
+                    <view class="sign_day_box" v-for="(item, index) in signInfo.signCalendar" :key="index">
+                      <view :class="[item?'sign_active':'']" style="display: flex;justify-content: center;align-items: center;flex-direction: column;background: #f5f6fa;width: 80rpx;height: 120rpx;">
+                        <view class="sign_day_box">
+                          <view :class="['sign_day_icon',item?'sign_yes':'sign_no']"></view>
+                        </view>
+                        <view v-if="item">已签</view>
+                        <view v-else>{{dailySignInTask.integral}}</view>
                       </view>
-                    </view>
-                  </view>
-                  <view class="sign_day_row" style="padding: 0 15px 0 15px;">
-                    <view class="sign_day_box">
-                      <view :class="['sign_day_icon',signInfo.signCount>=1?'sign_no':'sign_yes']">{{dailySignInTask.increase}}</view>
-                    </view>
-                    <view class="sign_day_box">
-                      <view :class="['sign_day_icon',signInfo.signCount>=2?'sign_no':'sign_yes']">{{dailySignInTask.increase}}</view>
-                    </view>
-                    <view class="sign_day_box">
-                      <view :class="['sign_day_icon',signInfo.signCount>=3?'sign_no':'sign_yes']">{{dailySignInTask.increase}}</view>
-                    </view>
-                    <view class="sign_day_box">
-                      <view :class="['sign_day_icon',signInfo.signCount>=4?'sign_no':'sign_yes']">{{dailySignInTask.increase}}</view>
-                    </view>
-                    <view class="sign_day_box">
-                      <view :class="['sign_day_icon',signInfo.signCount>=5?'sign_no':'sign_yes']">{{dailySignInTask.increase}}</view>
-                    </view>
-                    <view class="sign_day_box">
-                      <view :class="['sign_day_icon',signInfo.signCount>=6?'sign_no':'sign_yes']">{{dailySignInTask.increase}}</view>
-                    </view>
-                    <view class="sign_day_box">
-                      <view :class="['sign_day_icon',signInfo.signCount>=7?'sign_no':'sign_yes']">{{dailySignInTask.increase}}</view>
-                    </view>
-                  </view>
-                  <view class="sign_day_row" style="padding: 0 15px 0 15px;">
-                    <view class="sign_day_box" v-for="(value, key) in signInfo.signCalendar" :key="key">
-                      <view>{{key}}</view>
+                      <view class="mt-1">{{index}}</view>
                     </view>
                   </view>
                 </view>
-                <view class="row-center-center">
-                  <u-button size="medium" v-if="signInfo.todaySignFlag" @click="signIn" >已签到</u-button>
-                  <u-button size="medium" v-else type="primary">签到领积分</u-button>
+                <view class="row-center-center mt-5">
+                  <u-button shape="square" size="medium" v-if="signInfo.todaySignFlag">已签到</u-button>
+                  <view v-else>
+                    <!-- #ifdef H5 -->
+                    <he-open-subscribe @open-subscribe-success="signIn" :template-id="templateIds">
+                      <u-button shape="square" size="medium" v-else type="primary">签到领积分</u-button>
+                    </he-open-subscribe>
+                    <!-- #endif -->
+                    <!--  #ifdef MP-WEIXIN -->
+                    <u-button shape="square" size="medium" @click="signIn" type="primary">签到领积分</u-button>
+                    <!-- #endif -->
+                  </view>
                 </view>
               </view>
             </view>
           </view>
-          <view v-if="show">
+          <view v-if="showTask">
             <view class="mb-1" v-if="buyTaskList.display">
-              <u-card title="购买任务" >
+              <u-card title="购买任务" style="margin: 10px !important;">
                 <view class="" slot="body" style="padding: 0 !important;">
                   <view class="sign_list_container">
                     <view class="sign_list_wrap">
                       <view class="sign_list_item">
-                        <view class="sign_list_left">
-                          <image src="/static/img/sign/one.png" style="width: 32px;height: 32px;"></image>
-                          <view class="sign_list_left_desc">
-                            <view>{{buyTaskList.taskData[0].name}}</view>
-                            <view>{{buyTaskList.taskData[0].msg}}</view>
-                          </view>
+                        <view class="task_img_wrap">
+                          <image :src="$FILE_URL + '/file/img/sign/buy.png'" class="task_img"></image>
                         </view>
-                        <view class="sign_list_right" @tap="testOne">
-                          <text v-if="buyTaskList.taskData[0].complete">去领取</text>
-                          <text v-else >去完成</text>
+                        <view class="task_item_wrap">
+                          <view class="task_item_content">
+                            <view class="ml-1">{{buyTaskList.taskData[0].name}}</view>
+                            <view>
+                              <u-button size="mini" shape="square" v-if="buyTaskList.taskData[0].complete" class="button-color">去领取</u-button>
+                              <u-button size="mini" shape="square" v-else @click="toGood" class="button-color">去完成</u-button>
+                            </view>
+                          </view>
+                          <view class="task_item_msg">{{buyTaskList.taskData[0].msg}}</view>
                         </view>
                       </view>
                       <view style="height: 1px;width: 100%;background: #E5E5E5;"></view>
                       <view class="sign_list_item">
-                        <view class="sign_list_left">
-                          <image src="/static/img/sign/five.png" style="width: 32px;height: 32px;"></image>
-                          <view class="sign_list_left_desc">
-                            <view>{{buyTaskList.taskData[1].name}}</view>
-                            <view>{{buyTaskList.taskData[1].msg}}</view>
-                          </view>
+                        <view class="task_img_wrap">
+                          <image :src="$FILE_URL + '/file/img/sign/order.png'" class="task_img"></image>
                         </view>
-                        <view class="sign_list_right">
-                          <text v-if="buyTaskList.taskData[1].complete">去领取</text>
-                          <text v-else >去完成</text>
+                        <view class="task_item_wrap">
+                          <view class="task_item_content">
+                            <view class="ml-1">{{buyTaskList.taskData[1].name}}</view>
+                            <view>
+                              <u-button size="mini" shape="square" v-if="buyTaskList.taskData[0].complete" class="button-color">去领取</u-button>
+                              <u-button size="mini" shape="square" v-else @click="toGood" class="button-color">去完成</u-button>
+                            </view>
+                          </view>
+                          <view class="task_item_msg">{{buyTaskList.taskData[1].msg}}</view>
                         </view>
                       </view>
                     </view>
@@ -125,49 +128,55 @@
               </u-card>
             </view>
             <view class="mb-1" v-if="activeTaskList.display">
-              <u-card title="活跃任务" >
+              <u-card title="活跃任务">
                 <view class="" slot="body" style="padding: 0 !important;">
                   <view class="sign_list_container">
                     <view class="sign_list_wrap">
                       <view class="sign_list_item">
-                        <view class="sign_list_left">
-                          <image src="/static/img/sign/one.png" style="width: 32px;height: 32px;"></image>
-                          <view class="sign_list_left_desc">
-                            <view>{{activeTaskList.taskData[0].name}}</view>
-                            <view>{{activeTaskList.taskData[0].msg}}</view>
-                          </view>
+                        <view class="task_img_wrap">
+                          <image :src="$FILE_URL + '/file/img/sign/share.png'" class="task_img"></image>
                         </view>
-                        <view class="sign_list_right">
-                          <text v-if="activeTaskList.taskData[0].complete">去领取</text>
-                          <text v-else >去完成</text>
+                        <view class="task_item_wrap">
+                          <view class="task_item_content">
+                            <view class="ml-1">{{activeTaskList.taskData[0].name}}</view>
+                            <view>
+                              <u-button size="mini" shape="square" v-if="activeTaskList.taskData[0].complete" class="button-color">去领取</u-button>
+                              <u-button size="mini" shape="square" v-else @click="toHome" class="button-color">去完成</u-button>
+                            </view>
+                          </view>
+                          <view class="task_item_msg">{{activeTaskList.taskData[0].msg}}</view>
                         </view>
                       </view>
                       <view style="height: 1px;width: 100%;background: #E5E5E5;"></view>
                       <view class="sign_list_item">
-                        <view class="sign_list_left">
-                          <image src="/static/img/sign/five.png" style="width: 32px;height: 32px;"></image>
-                          <view class="sign_list_left_desc">
-                            <view>{{activeTaskList.taskData[1].name}}</view>
-                            <view>{{activeTaskList.taskData[1].msg}}</view>
-                          </view>
+                        <view class="task_img_wrap">
+                          <image :src="$FILE_URL + '/file/img/sign/browse.png'" class="task_img"></image>
                         </view>
-                        <view class="sign_list_right">
-                          <text v-if="activeTaskList.taskData[1].complete">去领取</text>
-                          <text v-else >去完成</text>
+                        <view class="task_item_wrap">
+                          <view class="task_item_content">
+                            <view class="ml-1">{{activeTaskList.taskData[1].name}}</view>
+                            <view>
+                              <u-button size="mini" shape="square" v-if="activeTaskList.taskData[0].complete" class="button-color">去领取</u-button>
+                              <u-button size="mini" shape="square" v-else @click="toGood" class="button-color">去完成</u-button>
+                            </view>
+                          </view>
+                          <view class="task_item_msg">{{activeTaskList.taskData[1].msg}}</view>
                         </view>
                       </view>
                       <view style="height: 1px;width: 100%;background: #E5E5E5;"></view>
                       <view class="sign_list_item">
-                        <view class="sign_list_left">
-                          <image src="/static/img/sign/recover.png" style="width: 32px;height: 32px;"></image>
-                          <view class="sign_list_left_desc">
-                            <view>{{activeTaskList.taskData[2].name}}</view>
-                            <view>{{activeTaskList.taskData[2].msg}}</view>
-                          </view>
+                        <view class="task_img_wrap">
+                          <image :src="$FILE_URL + '/file/img/sign/invite.png'" class="task_img"></image>
                         </view>
-                        <view class="sign_list_right">
-                          <text v-if="activeTaskList.taskData[2].complete">去领取</text>
-                          <text v-else >去完成</text>
+                        <view class="task_item_wrap">
+                          <view class="task_item_content">
+                            <view class="ml-1">{{activeTaskList.taskData[2].name}}</view>
+                            <view>
+                              <u-button size="mini" shape="square" v-if="activeTaskList.taskData[0].complete" class="button-color">去领取</u-button>
+                              <u-button size="mini" shape="square" v-else @click="toHome" class="button-color">去完成</u-button>
+                            </view>
+                          </view>
+                          <view class="task_item_msg">{{activeTaskList.taskData[2].msg}}</view>
                         </view>
                       </view>
                     </view>
@@ -181,30 +190,34 @@
                   <view class="sign_list_container">
                     <view class="sign_list_wrap">
                       <view class="sign_list_item">
-                        <view class="sign_list_left">
-                          <image src="/static/img/sign/one.png" style="width: 32px;height: 32px;"></image>
-                          <view class="sign_list_left_desc">
-                            <view>{{baseTaskList.taskData[0].name}}</view>
-                            <view>{{baseTaskList.taskData[0].msg}}</view>
-                          </view>
+                        <view class="task_img_wrap">
+                          <image :src="$FILE_URL + '/file/img/sign/info.png'" class="task_img"></image>
                         </view>
-                        <view class="sign_list_right">
-                          <text v-if="baseTaskList.taskData[0].complete">去领取</text>
-                          <text v-else >去完成</text>
+                        <view class="task_item_wrap">
+                          <view class="task_item_content">
+                            <view class="ml-1">{{baseTaskList.taskData[0].name}}</view>
+                            <view>
+                              <u-button size="mini" shape="square" v-if="baseTaskList.taskData[0].complete" class="button-color">去领取</u-button>
+                              <u-button size="mini" shape="square" v-else @click="toMine" class="button-color">去完成</u-button>
+                            </view>
+                          </view>
+                          <view class="task_item_msg">{{baseTaskList.taskData[0].msg}}</view>
                         </view>
                       </view>
                       <view style="height: 1px;width: 100%;background: #E5E5E5;"></view>
                       <view class="sign_list_item">
-                        <view class="sign_list_left">
-                          <image src="/static/img/sign/five.png" style="width: 32px;height: 32px;"></image>
-                          <view class="sign_list_left_desc">
-                            <view>{{baseTaskList.taskData[1].name}}</view>
-                            <view>{{baseTaskList.taskData[1].msg}}</view>
-                          </view>
+                        <view class="task_img_wrap">
+                          <image :src="$FILE_URL + '/file/img/sign/bind.png'" class="task_img"></image>
                         </view>
-                        <view class="sign_list_right">
-                          <text v-if="baseTaskList.taskData[1].complete">去领取</text>
-                          <text v-else >去完成</text>
+                        <view class="task_item_wrap">
+                          <view class="task_item_content">
+                            <view class="ml-1">{{baseTaskList.taskData[1].name}}</view>
+                            <view>
+                              <u-button size="mini" shape="square" v-if="baseTaskList.taskData[0].complete" class="button-color">去领取</u-button>
+                              <u-button size="mini" shape="square" v-else @click="toMine" class="button-color">去完成</u-button>
+                            </view>
+                          </view>
+                          <view class="task_item_msg">{{baseTaskList.taskData[1].msg}}</view>
                         </view>
                       </view>
                     </view>
@@ -213,15 +226,23 @@
               </u-card>
             </view>
           </view>
+          <view class="task-cartoon" v-if="displayAnimation">
+            <signInAnimation :score="signData.score" :title="signData.title" v-model="displayAnimation"></signInAnimation>
+          </view>
         </view>
       </scroll-view>
+      <u-toast ref="uToast" />
     </view>
 </template>
 
 <script>
-import {getTaskList, signInInfo, testOne, testTwo,signIn} from "@/faasmall/api/task";
-
+import {getTaskList, signInInfo, signIn} from "@/faasmall/api/task";
+import signInAnimation from './components/sign_in_animation.vue';
+import {mapGetters} from "vuex";
 export default {
+  components:{
+    signInAnimation
+  },
   name: "sign_in",
   data(){
     return{
@@ -231,6 +252,11 @@ export default {
       oneOpenGold:0,
       fiveOpenGold:0,
       oneRecover:0,
+      displayAnimation:false,
+      signData: {
+        score: 0,
+        title: '领取成功'
+      },
       //用户头像
       avatar:'http://dummyimage.com/180x180',
       signInfo:{
@@ -244,9 +270,9 @@ export default {
         todaySignFlag:false,
       },
       //是否显示任务列表
-      show:true,
+      showTask:false,
       dailySignInTask:{
-        increase:'',
+        integral:0,
       },
       continuousSignInTask:{},
       //购买任务
@@ -307,6 +333,12 @@ export default {
   onLoad(){
     this.init();
   },
+  computed: {
+    ...mapGetters(['subscribeData']),
+    templateIds: function() {
+      return [this.subscribeData.pointsChangeTid];
+    },
+  },
   filters: {
     formatTime: function (date, fmt) {
       var date = new Date(date);
@@ -330,12 +362,28 @@ export default {
     }
   },
   methods:{
+    toMine(){
+      uni.switchTab({
+        url: '/pages/tabbar/mine/index'
+      });
+    },
+    toHome(){
+      uni.switchTab({
+        url: '/pages/tabbar/main/index'
+      });
+    },
+    toGood(){
+      uni.navigateTo({
+        url: '/pages/common/good/list'
+      });
+    },
     init() {
       this.loadSignData();
       this.loadData();
     },
     loadSignData(){
         signInInfo().then((res)=>{
+          debugger
           if(res.code === 0){
             this.signInfo = res.data;
           }
@@ -346,7 +394,8 @@ export default {
     loadData(){
       getTaskList().then((res)=>{
           if(res.code === 0 ){
-            this.show = res.data.show;
+            debugger
+            this.showTask = res.data.show;
             this.buyTaskList = res.data.buyTaskList;
             this.baseTaskList = res.data.baseTaskList;
             this.activeTaskList = res.data.activeTaskList;
@@ -357,31 +406,44 @@ export default {
         console.error(error);
       });
     },
-    testOne(){
-      testOne();
-    },
-    testTwo(){
-      testTwo();
-    },
-    signIn(){
-      signIn().then.then((res)=>{
+    doSignIn(){
+      signIn().then((res)=>{
         if(res.code === 0){
-          this.$message({
-            message: '保存成功',
-            type: 'success'
-          });
+          that.signData.score = res.data;
+          that.displayAnimation = true;
+          //signInfo.signCalendar
+          that.init();
         }else {
-          this.$message.error(res.msg);
+          that.$refs.uToast.show({
+            title: res.msg,
+            type: 'error',
+          })
         }
       }).catch(error=>{
         console.error(error);
       });
+    },
+    signIn(){
+      let that = this;
+      //#ifdef MP_WEIXIN
+      uni.requestSubscribeMessage({
+        tmplIds: that.templateIds,
+        success: function() {},
+        fail: function() {},
+        complete: function() {
+          that.doSignIn();
+        },
+      });
+      //#endif
+      //#ifdef H5
+      that.doSignIn();
+      //#endif
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .status_bar {
   height: var(--status-bar-height);
   width: 100%;
@@ -404,45 +466,11 @@ export default {
   z-index:888;
   background-color: rgba(0, 0, 0, 0.6);
 }
-.sign_day_liwu{
-  background-image: url(/static/img/sign/liwu.png);
-  width: 32px;
-  height: 32px;
-  background-position: 0% 0%;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fb0000;
-  font-weight: bold;
-  font-size: 3px;
-}
-.sign_day_hiddle{
-  background: #2e73ff;
-  height: 25px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60px;
-  font-size: 5px;
-  position: relative;
-  color: #ffffff;
-  .info-panel-triple{
-    width: 0;
-    height: 0;
-    border: 8px solid transparent;
-    border-top-color: #2e73ff;
-    position: absolute;
-    top: 25px;
-  }
-}
 .sign_yes{
-  background-image: url(/static/img/sign/yes.png)
+  background-image: url($FILE_URL + '/file/img/sign/yes.png');
 }
 .sign_no{
-  background-image: url(/static/img/sign/no.png)
+  background-image: url($FILE_URL + '/file/img/sign/no.png')
 }
 .back{
   position: absolute;
@@ -450,17 +478,36 @@ export default {
   top: calc(var(--status-bar-height) + 20px);
   left: 20px;
 }
+.sign_user_info_right_gold{
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+}
+.sign_user_info_right{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 10px;
+  border: 1px #ffff solid;
+  width: 90px;
+  height: 30px;
+  color: #FFFFFF;
+  justify-content: center;
+}
+.sign_active{
+  background: #fff3cf !important;
+}
 .sign_container{
   .sign_top{
     background: #ec5250;
     padding: 50px 20px 20px 20px;
     height: 200px;
+    border-radius: 0 0 10% 10%;
     .sign_user_info{
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
-      margin-top: 20px;
       .sign_user_info_left{
         display: flex;
         flex-direction: row;
@@ -478,24 +525,10 @@ export default {
           }
         }
       }
-      .sign_user_info_right{
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        border-radius: 5px;
-        border: 1px #ffff solid;
-        width: 90px;
-        justify-content: center;
-        .sign_user_info_right_gold{
-          font-size: 18px;
-          font-weight: bold;
-          color: #ffffff;
-        }
-      }
     }
   }
   .sign_content{
-    height: 150px;
+    height: 400rpx;
     position: relative;
     width: 100%;
     //top: 180px;
@@ -503,7 +536,7 @@ export default {
       position: absolute;
       margin-top: -50px;
       width: 100%;
-      padding: 0 20px 0 20px;
+      padding: 0 20rpx 0 20rpx;
       //margin-top: var(--status-bar-height);
       .sign_continuous{
         background: #ffffff;
@@ -511,6 +544,7 @@ export default {
         //height: 170px;
         padding: 0 10px 10px 10px;
         .sign_title{
+          flex-direction: column;
           height: 50px;
           display: flex;
           justify-content: center;
@@ -532,6 +566,10 @@ export default {
             align-items: center;
             width: 100%;
             .sign_day_box{
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              flex-direction: column;
               .sign_day_icon{
                 width: 32px;
                 height: 32px;
@@ -554,35 +592,47 @@ export default {
   }
 }
 .sign_list_container{
-  //padding: 20px;
   .sign_list_wrap{
     background: #ffffff;
     border-radius: 15px;
-    //padding: 10px;
     .sign_list_item{
       height: 50px;
       display: flex;
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
-      .sign_list_left{
+      margin: 10px 0px;
+      .task_img_wrap{
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        .sign_list_left_desc{
-          margin-left: 10px;
+        .task_img{
+          width: 45px;
+          height: 45px;
         }
       }
-      .sign_list_right{
+      .task_item_wrap{
+        width: 100%;
         display: flex;
         align-items: center;
-        justify-content: center;
-        background: #2e73ff;
-        padding: 2px;
-        color: #ffffff;
-        width: 80px;
-        border-radius: 5px;
+        flex-direction: column;
+        .task_item_content{
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
+          width: 100%;
+          .button-color{
+            background: #FF7F00;
+            color: #FFFFFF;
+          }
+        }
+        .task_item_msg{
+          font-size: 10px;
+          padding-left: 5px;
+          width: 100%;
+          margin-top: 5px;
+        }
       }
     }
   }
@@ -638,5 +688,13 @@ export default {
       padding: 20px;
     }
   }
+}
+.task-cartoon {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 100;
 }
 </style>

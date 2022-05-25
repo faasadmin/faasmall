@@ -2,15 +2,17 @@
   <view class="goods-list">
     <view v-if="type === 'double'" class="goods-double row-center-between">
       <navigator v-for="(item, index) in list" :key="index" class="item bg-white mt-2" hover-class="none" open-type="navigate"
-                 :url="'/pages/common/good/info?id=' + item.id">
+                 :url="'/pages/common/good/info?id=' + item.id + '&isTask=' + isTask">
         <view class="goods-img" style="width: 347rpx;height:347rpx;">
           <faasmall-custom-image :lazy-load="true" width="347rpx" height="347rpx" radius="10rpx" lazy-load :src="item.thumbnail"></faasmall-custom-image>
         </view>
         <view class="goods-info">
           <view class="goods-name line2">{{item.name}}</view>
-          <view class="row-center-between price mt-2 row">
-            <price-format color="#FF2C3C"  class="mr-2" :first-size="34" :second-size="26" :subscript-size="26" :price="item.price" :weight="500"></price-format>
-            <price-format class="muted" :firstSize="24" :secondSize="24" :subscript-size="24" :line-through="true" :price="item.linePrice"></price-format>
+          <view class="price mt-2">
+              <view class="row-center-between">
+                <price-format color="#FF2C3C"  class="mr-2" :first-size="34" :second-size="26" :subscript-size="26" :price="item.price" :weight="500"></price-format>
+                <price-format class="muted" :firstSize="24" :secondSize="24" :subscript-size="24" :line-through="true" :price="item.linePrice"></price-format>
+              </view>
           </view>
         </view>
       </navigator>
@@ -22,7 +24,7 @@
               position: absolute;
               z-index: 200;
               width: 30rpx;
-							height: 30rpx;" v-if="item.selected" src="/static/img/common/select.png" mode=""></image>
+							height: 30rpx;" v-if="item.selected" :src="$FILE_URL + '/file/img/common/select.png'" mode=""></image>
           <view v-else style="
                position: absolute;
               z-index: 200;
@@ -44,7 +46,7 @@
       </view>
     </view>
     <view v-if="type === 'one'" class="goods-one mt-2 px-1">
-      <navigator v-for="(item, index) in list" :key="index" class="item bg-white row br20" hover-class="none" open-type="navigate" :url="'/pages/common/good/info?id=' + item.id">
+      <navigator v-for="(item, index) in list" :key="index" class="item bg-white row br20" hover-class="none" open-type="navigate" :url="'/pages/common/good/info?id=' + item.id+ '&isTask=' + isTask">
         <view style="display: flex;align-items: center;justify-content: center;">
           <view class="goods-img" style="width: 200rpx;height:200rpx;">
             <faasmall-custom-image :lazy-load="true" width="200rpx" height="200rpx" radius="6rpx" lazy-load :src="item.thumbnail"></faasmall-custom-image>
@@ -75,6 +77,10 @@ export default {
     list: {
       type: Array,
       default: () => []
+    },
+    isTask: {
+      type: [Boolean, Number],
+      default: 0
     },
     selectFlag:{
       type:Boolean,

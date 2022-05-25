@@ -1,6 +1,4 @@
-import {getInit} from "@/faasmall/api/common";
 var jweixin = require("jweixin-module");
-import $platform from "@/faasmall/utils/platform";
 export default {
 	//判断是否在微信中
 	isWechat() {

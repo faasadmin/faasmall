@@ -1,7 +1,6 @@
 <!-- 收银台 -->
 <template>
   <view>
-    <faasmall-navbar title="支付方式" :is-back="true"></faasmall-navbar>
     <view class="pay-method-wrap">
       <view class="u-flex-col u-col-center money-box">
         <text class="time" v-show="isCountDown">{{ timeText }}</text>
@@ -10,31 +9,31 @@
       <!-- 支付方式单选项 -->
       <u-radio-group v-if="paymentData.payType.length"  class="pay-box" v-model="payType" active-color="#FF0505">
         <!-- 微信支付 -->
-        <view class="u-flex u-row-between pay-item" v-show="paymentData.payType.includes(1)" @tap="payType = 1">
+        <view class="u-flex u-row-between pay-item" v-show="paymentData.payType.includes('wx')" @tap="payType = 'wx'">
           <view class="u-flex">
-            <image class="pay-img" src="http://dummyimage.com/180x180" mode=""></image>
+            <text class="iconfont icon-weixinzhifu" style="color: #1afa29;font-size: 30px;margin-right: 6rpx"></text>
             <text>微信支付</text>
           </view>
-          <u-radio shape="circle" name="1"></u-radio>
+          <u-radio shape="circle" name="wx"></u-radio>
         </view>
         <!-- 支付宝支付 -->
-        <view class="u-flex u-row-between pay-item" v-show="paymentData.payType.includes(2)" @tap="payType = 2">
+        <view class="u-flex u-row-between pay-item" v-show="paymentData.payType.includes('alipay')" @tap="payType = 'alipay'">
           <view class="u-flex">
-            <image class="pay-img" src="http://dummyimage.com/180x180" mode=""></image>
+            <text class="iconfont icon-zhifubaozhifu" style="color: #1296db;font-size: 30px;margin-right: 6rpx"></text>
             <text>支付宝支付</text>
           </view>
-          <u-radio shape="circle" name="2"></u-radio>
+          <u-radio shape="circle" name="alipay"></u-radio>
         </view>
         <!-- 余额支付 -->
-        <view class="u-flex u-row-between pay-item" v-show="paymentData.payType.includes(3)"  @tap="payType = 3">
+        <view class="u-flex u-row-between pay-item" v-show="paymentData.payType.includes('wallet')"  @tap="payType = 'wallet'">
           <view class="u-flex">
-            <image class="pay-img" src="http://dummyimage.com/180x180" mode=""></image>
+            <text class="iconfont icon-yue" style="color: #d81e06;font-size: 30px;margin-right: 6rpx"></text>
             <text>余额支付</text>
           </view>
-          <u-radio shape="circle" name="3"></u-radio>
+          <u-radio shape="circle" name="wallet"></u-radio>
         </view>
       </u-radio-group>
-      <button class="u-reset-button pay-btn" @tap="confirmPay">确认支付 ￥{{orderInfo.payAmount || '0.00'}}</button>
+      <button class="u-reset-button pay-btn" @click="confirmPay">确认支付 ￥{{orderInfo.payAmount || '0.00'}}</button>
     </view>
   </view>
 </template>
@@ -79,6 +78,7 @@ export default {
         debugger
         if(res.code === 0){
           that.orderInfo = res.data;
+          debugger
           if (that.paymentData.payType.length) {
             that.payType = that.paymentData.defPay;
           }
@@ -144,7 +144,7 @@ export default {
         uni.showModal({
           title: '支付提示',
           confirmColor: '#FF0505',
-          content: `是否确认使用余额支付:${that.orderDetail.total_fee || '0.00'}元?`,
+          content: `是否确认使用余额支付:${that.orderInfo.payAmount || '0.00'}元?`,
           success: res => {
             if (res.confirm) {
               pay = new Pay(that.payType, that.orderInfo);

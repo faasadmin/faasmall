@@ -7,7 +7,7 @@
       <view :style="'padding-top:'+(topHeight-75)+'px;background-color: #FFFFFF; width: 100%;'">
         <view class="loading-img">
           <view class="img-box">
-            <image src="/static/img/home/loading.gif" mode="aspectFill"></image>
+            <image :src="$FILE_URL + '/file/img/home/loading.gif'" mode="aspectFill"></image>
           </view>
         </view>
       </view>
@@ -16,7 +16,7 @@
         <view class="two-category-content-container">
           <block v-for="(items,index) in childClassifyList" :key="index">
             <view class="two-category-item" @tap="toPage(items)">
-              <view class="items-container">
+              <view class="itefaas-container">
                 <view class="category-pic">
                   <image :src="items.img" mode="aspectFill"></image>
                 </view>
@@ -33,15 +33,15 @@
         <!-- 排序 -->
         <view class="sort-container">
           <block v-for="(items,index) in sortList" :key="index">
-            <view class="sort-items-container" :class="sortCurrent==index?'items-container-active':''" @click="selectSort(index)">
+            <view class="sort-itefaas-container" :class="sortCurrent==index?'itefaas-container-active':''" @click="selectSort(index)">
               <view class="sort-name">
                 {{items.sortName}}
               </view>
               <view class="sort-type" v-if="index==3">
-                <image v-if="sortCurrent!=3 " src="/static/img/sort/sort.svg" mode=""></image>
+                <image v-if="sortCurrent!=3 " :src="$FILE_URL + '/file/img/sort/sort.svg'" mode=""></image>
                 <block v-else>
-                  <image v-if="priceUp" src="/static/img/sort/asce.svg" mode=""></image>
-                  <image v-else src="/static/img/sort/desc.svg" mode=""></image>
+                  <image v-if="priceUp" :src="$FILE_URL + '/file/img/sort/asce.svg'" mode=""></image>
+                  <image v-else :src="$FILE_URL + '/file/img/sort/desc.svg'" mode=""></image>
                 </block>
               </view>
             </view>
@@ -49,8 +49,8 @@
         </view>
         <view class="goods-container" v-if='loadFlag'>
           <view class="goods-list-wraper">
-            <view class="goods-items-container" v-for="(items,index) in goodsList" :key='index' @click="toGood(items)">
-              <view class="items-container">
+            <view class="goods-itefaas-container" v-for="(items,index) in goodsList" :key='index' @click="toGood(items)">
+              <view class="itefaas-container">
                 <view class="image-container">
                   <image :src="items.thumbnail" mode="aspectFill"></image>
                 </view>
@@ -94,6 +94,7 @@
 <script>
 import {getLevelCategroy} from "../../../../faasmall/api/category";
 import {getGoodPage} from "../../../../faasmall/api/good";
+import setting from "@/pages/common/tool/setting";
 
 export default {
   props: {
@@ -111,7 +112,9 @@ export default {
     parentId: [Number, String],
   },
   data() {
+    const _this = this
     return {
+      $FILE_URL: _this.$FILE_URL,
       sortCurrent: 0,
       //金额排序
       priceUp: false,
@@ -200,6 +203,7 @@ export default {
     },
     onRestore() {
       console.log('下拉被终止')
+      uni.stopPullDownRefresh()
     },
     pageScroll(e) {
       this.$emit('scrollNum', e.detail.scrollTop)
@@ -369,7 +373,7 @@ export default {
         flex-direction: column;
         align-items: center;
         width: 185rpx;
-        .items-container {
+        .itefaas-container {
           margin-bottom: 40rpx;
           display: flex;
           flex-direction: column;
@@ -411,7 +415,7 @@ export default {
       align-items: center;
       justify-content: space-between;
       box-sizing: border-box;
-      .sort-items-container {
+      .sort-itefaas-container {
         width: 90rpx;
         display: flex;
         align-items: center;
@@ -434,7 +438,7 @@ export default {
           }
         }
       }
-      .items-container-active {
+      .itefaas-container-active {
         .sort-name {
           color: #FF4242;
         }
@@ -455,14 +459,14 @@ export default {
         align-items: center;
         justify-content: space-between;
         box-sizing: border-box;
-        .goods-items-container {
+        .goods-itefaas-container {
           width: 354rpx;
           margin-bottom: 20rpx;
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
           align-items: center;
-          .items-container {
+          .itefaas-container {
             width: 354rpx;
             overflow: hidden;
             border-radius: 8rpx;

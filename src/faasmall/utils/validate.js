@@ -1,18 +1,134 @@
-// 校验是否是手机端
-export function isMobile() {
-	const userAgent = navigator.userAgent;
-	return userAgent.match(
-		/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i
-	);
-}
-// 校验微信环境
-export function isWeixin() {
-	const userAgent = navigator.userAgent;
-	return userAgent.toLowerCase().indexOf("micromessenger") !== -1;
-}
+let test = require('uview-ui/libs/function/test.js');
+export default {
+	// 手机号
+	mobile: [{
+			required: true,
+			message: '请输入手机号',
+			trigger: ['change', 'blur']
+		},
+		{
+			validator: (rule, value, callback) => {
+				debugger
+				return test.mobile(value);
+			},
+			message: '手机号码格式不正确',
+			trigger: ['change', 'blur']
+		}
+	],
+	// 账户
+	account: [{
+		required: true,
+		min: 5,
+		message: '请输入账号',
+		trigger: ['change', 'blur']
+	}],
 
-// 手机号码校验
-export function RegPhone(val) {
-	let reg = /^1[3|4|5|7|8][0-9]\d{8}$/;
-	return reg.test(val);
+	// 短信验证码
+	code: [{
+		required: true,
+		min: 4,
+		message: '请输入验证码',
+		trigger: ['change', 'blur']
+	}],
+
+	// 密码
+	password: [{
+			required: true,
+			message: '请输入密码',
+			trigger: ['change', 'blur']
+		},
+		{
+			pattern: /^(?![a-zA-Z]+$)(?![0-9]+$)[0-9A-Za-z]+\S{5,12}$/,
+			message: '需同时含有字母和数字，字母开头，长度在6-12之间',
+			trigger: ['change', 'blur']
+		}
+	],
+	// 持卡人姓名
+	bankAccount: [{
+			required: true,
+			message: '请输入持卡人姓名',
+			trigger: ['change', 'blur']
+		},
+		{
+			validator: (rule, value, callback) => {
+				return test.chinese(value);
+			},
+			message: '请输入汉字',
+			trigger: ['change', 'blur']
+		}
+	],
+	// 支付宝姓名
+	zfbName: [{
+		required: true,
+		message: '请输入支付宝姓名',
+		trigger: ['change', 'blur']
+	},
+		{
+			validator: (rule, value, callback) => {
+				return test.chinese(value);
+			},
+			message: '请输入汉字',
+			trigger: ['change', 'blur']
+		}
+	],
+	// 开户行
+	bankName: [{
+			required: true,
+			message: '请输入开户行',
+			trigger: ['change', 'blur']
+		},
+		{
+			validator: (rule, value, callback) => {
+				return test.chinese(value);
+			},
+			message: '请输入汉字',
+			trigger: ['change', 'blur']
+		}
+	],
+	// 微信名称
+	wxName: [{
+		required: true,
+		message: '请输入微信名称',
+		trigger: ['change', 'blur']
+	},
+		{
+			validator: (rule, value, callback) => {
+				return test.chinese(value);
+			},
+			message: '请输入汉字',
+			trigger: ['change', 'blur']
+		}
+	],
+	// 银行卡号
+	bankCode: [{
+			required: true,
+			message: '请输入银行卡号',
+			trigger: ['change', 'blur']
+		},
+		{
+			validator: (rule, value, callback) => {
+				return test.number(value);
+			},
+			message: '请输入正确账号',
+			trigger: ['change', 'blur']
+		}
+	],
+
+	// 支付宝账号
+	alipayAccount: [{
+			required: true,
+			message: '请输入支付账号',
+			trigger: ['change', 'blur']
+		},
+		{
+			validator: (rule, value, callback) => {
+				let isRange = test.rangeLength(value, [6, 30]);
+				let isAsterisk = test.contains(value, '*');
+				
+				return isRange && !isAsterisk;
+			},
+			message: '请输入正确账号',
+			trigger: ['change', 'blur']
+		}
+	],
 }

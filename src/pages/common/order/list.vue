@@ -1,6 +1,5 @@
 <template>
     <view>
-      <faasmall-navbar title="订单列表" :is-back="true"></faasmall-navbar>
       <u-toast ref="uToast" />
       <view >
         <view style="height: 80rpx;padding: 20rpx;background: #FFFFFF">
@@ -14,7 +13,7 @@
             <swiper-item class="swiper-item">
               <scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="loadMoreMemberCoupon">
                 <view class="page-box">
-                  <view class="order" v-for="(res, index) in tabData[0].orderList" :key="res.id" @tap="toInfo(res.order)">
+                  <view class="order" v-for="(res, index) in tabData[0].orderList" :key="res.id" @tap="toInfo" :data-row="res.order">
                     <view class="top">
                       <view class="left">
                         <view class="store">{{res.order.createTime}}</view>
@@ -43,14 +42,24 @@
                     <view class="bottom" style="display: flex;justify-content: flex-end" v-if="(res.order.status === 4 && res.order.evaluate === 0) || res.order.status === 3 || res.order.status === 1">
                         <view style="display: flex">
                           <template v-if="res.order.status === 1">
-                            <u-button class="ml-1" @click.stop="cancel(res.order.id)">取消订单</u-button>
-                            <u-button class="ml-1" v-if="shopData.operatingStatus === 1" @click.stop="toPay(res.order.id)">立即支付
-                            </u-button>
-                            <u-button class="ml-1" v-else>已打样</u-button>
+                            <u-button type="warning" size="mini" shape="square" class="ml-1" @click.stop="cancel(res.order.id)">取消订单</u-button>
+                            <!-- #ifdef MP-WEIXIN -->
+                            <u-button type="error" size="mini" shape="square" class="ml-1" v-if="shopData.operatingStatus === 1" @click.stop="toPay(res.order.id)">立即支付</u-button>
+                            <!-- #endif -->
+                            <!-- #ifdef H5 -->
+                            <faasmall-open-subscribe
+                                @open-subscribe-success="toPay(res.order.id)"
+                                :template-id="templateIds"
+                                v-if="shopData.operatingStatus === 1"
+                            >
+                              <u-button type="error" size="mini" shape="square" class="ml-1">立即支付</u-button>
+                            </faasmall-open-subscribe>
+                            <!-- #endif -->
+                            <u-button type="success" size="mini" shape="square" class="ml-1" v-else>已打样</u-button>
                           </template>
-                          <u-button class="ml-1" v-else-if="res.order.status === 3" @click.stop="receipt(res.order.id)">确认收货
+                          <u-button type="primary" size="mini" shape="square" class="ml-1" v-else-if="res.order.status === 3" @click="receipt(res.order.id)">确认收货
                           </u-button>
-                          <u-button class="ml-1" v-else-if="res.order.status === 4 && res.order.evaluate === 0">评价晒单
+                          <u-button type="primary" size="mini" shape="square" class="ml-1" @click="$Router.push({path: '/pages/common/order/evaluation',query: {id: res.order.id}})" v-else-if="res.order.status === 4 && res.order.evaluate === 0">评价晒单
                           </u-button>
                         </view>
                     </view>
@@ -64,7 +73,7 @@
             <swiper-item class="swiper-item">
               <scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="loadMoreMemberCoupon">
                 <view class="page-box">
-                  <view class="order" v-for="(res, index) in tabData[1].orderList" :key="res.id" @tap="toInfo(res.order)">
+                  <view class="order" v-for="(res, index) in tabData[1].orderList" :key="res.id" @tap="toInfo" :data-row="res.order">
                     <view class="top">
                       <view class="left">
                         <view class="store">{{res.order.createTime}}</view>
@@ -91,10 +100,31 @@
                         ￥ {{res.order.totalAmount}}
                       </text>
                     </view>
-                    <view class="bottom">
-                      <view class="more"><u-icon name="more-dot-fill" color="rgb(203,203,203)"></u-icon></view>
-                      <view class="logistics btn">查看物流</view>
-                      <view class="evaluate btn">评价</view>
+                    <view class="bottom" style="display: flex;justify-content: flex-end" v-if="(res.order.status === 4 && res.order.evaluate === 0) || res.order.status === 3 || res.order.status === 1">
+                      <view style="display: flex">
+                        <template v-if="res.order.status === 1">
+                          <u-button type="warning" size="mini" shape="square" class="ml-1" @click.stop="cancel(res.order.id)">取消订单</u-button>
+
+                          <!-- #ifdef MP-WEIXIN -->
+                          <u-button type="error" size="mini" shape="square" class="ml-1" v-if="shopData.operatingStatus === 1" @click.stop="toPay(res.order.id)">立即支付</u-button>
+                          <!-- #endif -->
+                          <!-- #ifdef H5 -->
+                          <faasmall-open-subscribe
+                              @open-subscribe-success="toPay(res.order.id)"
+                              :template-id="templateIds"
+                              v-if="shopData.operatingStatus === 1"
+                          >
+                            <u-button type="error" size="mini" shape="square" class="ml-1">立即支付</u-button>
+                          </faasmall-open-subscribe>
+                          <!-- #endif -->
+
+                          <u-button type="success" size="mini" shape="square" class="ml-1" v-else>已打样</u-button>
+                        </template>
+                        <u-button type="primary" size="mini" shape="square" class="ml-1" v-else-if="res.order.status === 3" @click.stop="receipt(res.order.id)">确认收货
+                        </u-button>
+                        <u-button type="primary" size="mini" shape="square" class="ml-1" @click="$Router.push({path: '/pages/common/order/evaluation',query: {id: res.order.id}})" v-else-if="res.order.status === 4 && res.order.evaluate === 0">评价晒单
+                        </u-button>
+                      </view>
                     </view>
                   </view>
                   <u-empty v-if="tabData[1].empty === true && tabData[1].orderList.length === 0" text="暂无数据" mode="list"></u-empty>
@@ -105,7 +135,7 @@
             <swiper-item class="swiper-item">
               <scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="loadMoreMemberCoupon">
                 <view class="page-box">
-                  <view class="order" v-for="(res, index) in tabData[2].orderList" :key="res.id" @tap="toInfo(res.order)">
+                  <view class="order" v-for="(res, index) in tabData[2].orderList" :key="res.id" @tap="toInfo" :data-row="res.order">
                     <view class="top">
                       <view class="left">
                         <view class="store">{{res.order.createTime}}</view>
@@ -147,7 +177,7 @@
             <swiper-item class="swiper-item">
               <scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="loadMoreMemberCoupon">
                 <view class="page-box">
-                  <view class="order" v-for="(res, index) in tabData[3].orderList" :key="res.id" @tap="toInfo(res.order)">
+                  <view class="order" v-for="(res, index) in tabData[3].orderList" :key="res.id" @tap="toInfo" :data-row="res.order">
                     <view class="top">
                       <view class="left">
                         <view class="store">{{res.order.createTime}}</view>
@@ -174,11 +204,30 @@
                         ￥ {{res.order.totalAmount}}
                       </text>
                     </view>
-                    <view class="bottom">
-                      <view class="more"><u-icon name="more-dot-fill" color="rgb(203,203,203)"></u-icon></view>
-                      <view class="logistics btn">查看物流</view>
-                      <view class="exchange btn">卖了换钱</view>
-                      <view class="evaluate btn">评价</view>
+                    <view class="bottom" style="display: flex;justify-content: flex-end" v-if="(res.order.status === 4 && res.order.evaluate === 0) || res.order.status === 3 || res.order.status === 1">
+                      <view style="display: flex">
+                        <template v-if="res.order.status === 1">
+                          <u-button type="warning" size="mini" shape="square" class="ml-1" @click.stop="cancel(res.order.id)">取消订单</u-button>
+                          <!-- #ifdef MP-WEIXIN -->
+                          <u-button type="error" size="mini" shape="square" class="ml-1" v-if="shopData.operatingStatus === 1" @click.stop="toPay(res.order.id)">立即支付</u-button>
+                          <!-- #endif -->
+                          <!-- #ifdef H5 -->
+                          <faasmall-open-subscribe
+                              @open-subscribe-success="toPay(res.order.id)"
+                              :template-id="templateIds"
+                              v-if="shopData.operatingStatus === 1"
+                          >
+                            <u-button type="error" size="mini" shape="square" class="ml-1">立即支付</u-button>
+                          </faasmall-open-subscribe>
+                          <!-- #endif -->
+
+                          <u-button type="success" size="mini" shape="square" class="ml-1" v-else>已打样</u-button>
+                        </template>
+                        <u-button type="primary" size="mini" shape="square" class="ml-1" v-else-if="res.order.status === 3" @click.stop="receipt(res.order.id)">确认收货
+                        </u-button>
+                        <u-button type="primary" size="mini" shape="square" class="ml-1" @click="$Router.push({path: '/pages/common/order/evaluation',query: {id: res.order.id}})" v-else-if="res.order.status === 4 && res.order.evaluate === 0">评价晒单
+                        </u-button>
+                      </view>
                     </view>
                   </view>
                   <u-empty v-if="tabData[3].empty === true && tabData[3].orderList.length === 0" text="暂无数据" mode="list"></u-empty>
@@ -349,7 +398,16 @@ export default {
     this.loadData();
   },
   computed: {
-    ...mapGetters(['tradeData','shopData']),
+    ...mapGetters(['tradeData','shopData','subscribeData']),
+    templateIds: function () {
+      //付款成功通知 订单发货通知 积分变更提醒
+      let tpl = [
+        this.subscribeData.paySuccessTid,
+        this.subscribeData.orderShipmentTid,
+        this.subscribeData.pointsChangeTid
+      ];
+      return tpl;
+    },
     // 价格小数
     priceDecimal() {
       return val => {
@@ -366,9 +424,7 @@ export default {
     }
   },
   methods: {
-    toPay(id){
-      debugger
-      var that = this;
+    submit(id){
       verifyPay({id:id}).then(function (res) {
         debugger
         if(res.code === 0){
@@ -377,7 +433,7 @@ export default {
             that.$Router.push({
               path: '/pages/common/pay/method',
               query: {
-                orderId: 1,
+                orderId: id,
                 payState: 'success'
               }
             });
@@ -417,6 +473,27 @@ export default {
         console.error(e);
       });
     },
+    toPay(id){
+      debugger
+      var that = this;
+      // #ifdef MP_WEIXIN
+      if(that.subscribeData.status === 0){
+        wx.requestSubscribeMessage({
+          tmplIds: that.templateIds,
+          success: function () {},
+          fail: function () {},
+          complete: function () {
+            that.submit(id);
+          }
+        });
+      } else {
+        that.submit(id);
+      }
+      // #endif
+      // #ifdef H5
+      this.submit(id);
+      // #endif
+    },
     cancel(id){
       cancelOrder({id:id}).then((res)=>{
         if(res.code === 0){
@@ -439,7 +516,7 @@ export default {
       receiptOrder({id:id}).then((res)=>{
         if(res.code === 0){
           this.$refs.uToast.show({
-            title: '取消成功',
+            title: '确认成功',
             type: 'success',
           })
         }else {
@@ -547,9 +624,8 @@ export default {
       this.tabCurrentIndex = current;
     },
     toInfo(item){
-      debugger
       //跳转界面
-      this.$Router.push({ path: '/pages/common/order/info', query: { id: item.id } });
+      this.$Router.push({ path: '/pages/common/order/info', query: { id: item.currentTarget.dataset.row.id } });
     }
   }
 }

@@ -1,6 +1,5 @@
 <template>
   <view>
-    <faasmall-navbar title="订单详情" :is-back="true"></faasmall-navbar>
     <u-toast ref="uToast" />
     <view class="order-details">
       <view class="header-bg"></view>
@@ -14,7 +13,7 @@
             <view class="item" style="color: #FFFFFF;" v-if="tradeData.autoCancelStatus===1 && orderInfo.status === 1">
               剩{{ h }}小时{{i}}分钟自动关闭
             </view>
-            <view class="item" style="color: #FFFFFF;" v-if="orderInfo.status === 2">
+            <view class="item" style="color: #FFFFFF;" v-if="orderInfo.status === 3">
               剩{{d}}天{{ h }}小时自动确认收货
             </view>
             <view class="item" style="color: #FFFFFF;" v-if="orderInfo.status === 7">
@@ -24,10 +23,10 @@
               订单已取消
             </view>
           </view>
-          <u-image width="120rpx" height="120rpx" :src="orderInfo.statusImg"></u-image>
+          <image style="width:120rpx;height:120rpx" :src="orderInfo.statusImg"></image>
         </view>
         <view class="address-wrap row contain row-center-start">
-          <u-image width="60rpx" height="60rpx" src="/static/img/user/address.png"></u-image>
+          <u-image width="60rpx" height="60rpx" :src="$FILE_URL + '/file/img/user/address.png'"></u-image>
           <view class="address">
             <view>
               <view class="mb-1">
@@ -38,39 +37,73 @@
             </view>
           </view>
         </view>
+        <view class="detail-logistics flex align-center" v-if="(orderInfo.status === 2 || orderInfo.status === 3 || orderInfo.status === 4 || orderInfo.status === 5) && orderInfo.logisticsList.length > 0" @click="$Router.push({path:'/pages/common/order/package',query:{id:orderInfo.id}})">
+          <text class="iconfont icon-daishouhuo"></text>
+          <view class="pack-info">
+            {{ '订单被拆分为' + orderInfo.logisticsList.length + '个包裹' }}
+          </view>
+          <text class="iconfont iconbtn_arrow"></text>
+        </view>
         <view class="goods contain">
           <view class="order-goods bg-white">
             <view  class="item-wrap">
-              <view class="item row row-center-start" style="padding-left: 40rpx" v-for="good in orderInfo.goodList" :key="good.id">
-                <view class="goods-img">
+              <view class="item row row-center-start" @tap="$Router.push({path:'/pages/common/good/info',query:{id:good.goodId}})" style="padding-left: 40rpx" v-for="good in orderInfo.goodList" :key="good.id">
+                <view class="goods-img" style="flex: 1">
                   <u-image class="mr5" :src="good.thumbnail"  width="120rpx" height="120rpx" ></u-image>
                 </view>
-                <view class="goods-info ml-1 flex1">
+                <view class="goods-info ml-1" style="flex: 4">
                   <view class="goods-name line2 mb10">
                     {{good.goodName}}
                   </view>
                   <view class="goods-spec xs muted mb-1">数量:{{good.goodNumber}} {{good.goodSkuName}}</view>
                   <view class="row-content-between">
                     <view class="goods-price ">
-                      <view class="primary">
-                        ￥{{good.goodSellingPrice}}
+                      <!-- 总计金额大于支付金额 -->
+                      <view v-if="Number(good.totalAmount) > Number(good.payAmount)">
+                        <view class="flex align-center justify-end">
+                          <text>优惠后</text>
+                          <text>￥{{ Math.floor((good.payAmount / good.goodNumber) * 100) / 100 }}</text>
+                        </view>
+                        <view class="primary">￥{{ good.goodSellingPrice }}</view>
                       </view>
+                      <view v-else>
+                        <view class="primary">
+                          ￥{{good.goodSellingPrice}}
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                  <view style="display: flex;justify-content: flex-end;align-items: center;padding: 0 20rpx" v-if="orderInfo.status === 2 || orderInfo.status === 3 || orderInfo.status === 4">
+                    <view>
+                      <u-button shape="square" size="mini" v-if="good.afterSales === 0" @click="applyAfterSales(good, orderInfo.status)">申请售后</u-button>
+                      <u-button shape="square" size="mini" v-else @click.stop="afterSalesInfo(good.id)">售后记录</u-button>
                     </view>
                   </view>
                 </view>
               </view>
-              <view class="footer row" >
-                <u-button shape="square" v-if="(orderInfo.status === 4 || orderInfo.status === 5) && orderInfo.evaluate === 0">评价晒图</u-button>
-                <u-button shape="square" v-if="orderInfo.status === 2 && orderInfo.goodList.length > 1">整单退款</u-button>
-                <u-button shape="square" v-if="orderInfo.status === 3">确认收货</u-button>
+              <view class="footer row" v-if="isBottom" style="display: flex;justify-content: flex-end;align-items: center">
+                <u-button shape="square" type="primary" @click="$Router.push({ path: '/pages/common/order/evaluation', query: { id: orderInfo.id } })"  v-if="(orderInfo.status === 4 || orderInfo.status === 5) && orderInfo.evaluate === 0">评价晒图</u-button>
+                <u-button shape="square" type="warning" @click.stop="navigateToApply(orderInfo.goodList, orderInfo.status,orderInfo.orderSn,orderInfo.freightAmount)" v-if="orderInfo.status === 2 && orderInfo.goodList.length > 1">整单退款</u-button>
+                <u-button shape="square" type="success" @click.stop="receipt(orderInfo.id)" v-if="orderInfo.status === 3">确认收货</u-button>
                 <template shape="square" v-if="orderInfo.status === 1">
-                  <view class="he-pay-price flex align-center">
-                    <text class="he-label">实付金额</text>
-                    <text class="he-value">¥{{ orderInfo.payAmount }}</text>
+                  <view class="flex align-center">
+                    <text>实付金额</text>
+                    <text>¥{{ orderInfo.payAmount }}</text>
                   </view>
                   <view style="flex: 1"></view>
-                  <u-button shape="square" v-if="shopData.operatingStatus === 1" @click="toPay">立即支付</u-button>
-                  <u-button shape="square" v-else>已打样</u-button>
+                  <!-- #ifdef MP-WEIXIN -->
+                  <u-button shape="square" type="error" v-if="shopData.operatingStatus === 1" @click="toPay">立即支付</u-button>
+                  <!-- #endif -->
+                  <!-- #ifdef H5 -->
+                  <faasmall-open-subscribe
+                      @open-subscribe-success="toPay"
+                      :template-id="templateIds"
+                      v-if="shopData.operatingStatus === 1"
+                  >
+                    <u-button shape="square" type="error">立即支付</u-button>
+                  </faasmall-open-subscribe>
+                  <!-- #endif -->
+                  <u-button shape="square" type="success" v-else>已打样</u-button>
                 </template>
               </view>
             </view>
@@ -138,7 +171,7 @@
 
 <script>
 import {pay} from "@/faasmall/api/pay";
-import {freePay, getOrderDetail, getOrderInfo, getPre, verifyPay} from "@/faasmall/api/order";
+import {freePay, getOrderDetail, getOrderInfo, getPre, receiptOrder, verifyPay} from "@/faasmall/api/order";
 import {mapGetters} from "vuex";
 export default {
   name: "info",
@@ -146,12 +179,25 @@ export default {
 
   },
   data() {
+    const _this = this;
     return {
+      $FILE_URL: _this.$FILE_URL,
       orderInfo: {
-        buyer:{}
+        goodAmount:'',
+        freightAmount:'',
+        payAmount:'',
+        buyer:{
+          name:'',
+          mobile:'',
+          province:'',
+          city:'',
+          district:'',
+          address:'',
+        }
       },
       team: {},
       isFirstLoading: true,
+      isTask:0,
       type: 0,
       cancelTime: 0,
       showCancel: "",
@@ -166,7 +212,26 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['tradeData','shopData']),
+    ...mapGetters(['tradeData','shopData','subscribeData']),
+    isBottom: function () {
+      let { status, evaluate, goodList, existAfterSales } = this.orderInfo;
+      debugger
+      return (
+          status === 1 ||
+          status === 3 ||
+          (status === 2 && goodList.length > 1 && !existAfterSales) ||
+          (status === 4 && evaluate === 0)
+      );
+    },
+    templateIds: function () {
+      //付款成功通知 订单发货通知 积分变更提醒
+      let tpl = [
+        this.subscribeData.paySuccessTid,
+        this.subscribeData.orderShipmentTid,
+        this.subscribeData.pointsChangeTid
+      ];
+      return tpl;
+    }
   },
   watch: {
     timestamp() {
@@ -174,16 +239,12 @@ export default {
       this.start();
     }
   },
-  onShow(){
+  async onShow(){
     this.id = this.$Route.query.id;
-    debugger
-    this.init();
+    await this.init();
     let _this = this;
     let end = null;
     setTimeout(function() {
-      console.log(_this.orderInfo.createTime);
-      console.info(new Date(_this.orderInfo.createTime).getTime()/1000);
-      debugger
       if (_this.orderInfo.status !== 3) {
         end = ((new Date(_this.orderInfo.createTime)).getTime()/1000) * 1000 + _this.tradeData.autoCancelTime * 3600000;
       } else {
@@ -192,6 +253,7 @@ export default {
       let start = Date.now();
       let difference = end - start;
       if (difference > 0) {
+        //除以1000以后是在秒级进行操作（数字小利于计算）
         _this.timestamp = difference / 1000;
       } else {
         _this.timestamp = 0;
@@ -209,50 +271,80 @@ export default {
     this.timer = null;
   },
   methods:{
+    receipt(id){
+      receiptOrder({id:id}).then((res)=>{
+        if(res.code === 0){
+          this.$refs.uToast.show({
+            title: '确认成功',
+            type: 'success',
+          })
+          this.init();
+        }else {
+          uni.showToast({
+            title: res.msg,
+            duration: 2000,
+            icon: "none",
+          });
+        }
+      }).catch(err=>{
+        console.error(err);
+      })
+    },
+    // 整单退款
+    navigateToApply(goods, status,orderSn,freightAmount) {
+      let is_task = 0;
+      if (this.type === 'task') {
+        is_task = 1;
+      }
+      uni.navigateTo({
+        url: `/pages/common/order/afterSale/after_sale_apply?goods=${encodeURIComponent(JSON.stringify(goods))}&status=${status}&isTask=${is_task}&type=0&isEntire=1&orderSn=${orderSn}&freightAmount=${freightAmount}`
+      });
+    },
     init(){
       var that = this;
       getOrderInfo({id:this.id}).then(function (res) {
-        debugger
         if(res.code === 0){
+          debugger
           that.orderInfo = res.data;
           if (that.orderInfo.afterSales === 0) {
+            debugger
             switch (that.orderInfo.status) {
               case 1:
                 // 支付
-                that.orderInfo.statusImg = '/static/img/order/order-pay.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-pay.png';
                 break;
               case 2:
                 // 发货
-                that.orderInfo.statusImg = '/static/img/order/order-ship.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-ship.png';
                 break;
               case 3:
                 // 收货
-                that.orderInfo.statusImg = '/static/img/order/order-receipt.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-receipt.png';
                 break;
               case 4:
                 // 完成
-                that.orderInfo.statusImg = '/static/img/order/order-success.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-success.png';
                 break;
               case 5:
-                that.orderInfo.statusImg = '/static/img/order/order-success.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-success.png';
                 break;
               case 6:
-                that.orderInfo.statusImg = '/static/img/order/order-close.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-close.png';
                 break;
               case 7:
-                that.orderInfo.statusImg = '/static/img/order/order-close.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-close.png';
                 break;
               case 8:
-                that.orderInfo.statusImg = '/static/img/order/order-close.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-close.png';
                 break;
               default:
-                that.orderInfo.statusImg = '/static/img/order/order-close.png';
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order/order-close.png';
                 break;
             }
           } else if (that.orderInfo.afterSales === 1) {
             switch (that.orderInfo.status) {
               case 8:
-                that.orderInfo.statusImg = "/static/img/order/order-complete.png";
+                that.orderInfo.statusImg = that.$FILE_URL + '/file/img/order/order-complete.png';
                 break;
             }
           }
@@ -267,54 +359,74 @@ export default {
         console.error(e);
       });
     },
-    toPay(){
+    submit(){
       var that = this;
       verifyPay({id:that.id}).then(function (res) {
         debugger
-          if(res.code === 0){
-            debugger
-            if(res.data){
-              that.$Router.push({
-                path: '/pages/common/pay/method',
-                query: {
-                  orderId: that.id,
-                }
-              });
-            }else {
-              debugger
-              freePay({id:that.id}).then((res)=>{
-                debugger
-                if (res.code === 0) {
-                  that.$refs.uToast.show({
-                    title: '支付成功',
-                    type: 'success',
-                  })
-                  setTimeout(() => {
-                    uni.redirectTo({
-                      url: '/pages/common/order/list'
-                    });
-                  }, 500);
-                }else{
-                  uni.showToast({
-                    title: res.msg,
-                    duration: 2000,
-                    icon: "none",
-                  });
-                }
-              }).catch(function (e) {
-                console.error(e);
-              });
-            }
+        if(res.code === 0){
+          debugger
+          if(res.data){
+            that.$Router.push({
+              path: '/pages/common/pay/method',
+              query: {
+                orderId: that.id,
+              }
+            });
           }else {
-            uni.showToast({
-              title: res.msg,
-              duration: 2000,
-              icon: "none",
+            debugger
+            freePay({id:that.id}).then((res)=>{
+              debugger
+              if (res.code === 0) {
+                that.$refs.uToast.show({
+                  title: '支付成功',
+                  type: 'success',
+                })
+                setTimeout(() => {
+                  uni.redirectTo({
+                    url: '/pages/common/order/list'
+                  });
+                }, 500);
+              }else{
+                uni.showToast({
+                  title: res.msg,
+                  duration: 2000,
+                  icon: "none",
+                });
+              }
+            }).catch(function (e) {
+              console.error(e);
             });
           }
+        }else {
+          uni.showToast({
+            title: res.msg,
+            duration: 2000,
+            icon: "none",
+          });
+        }
       }).catch(function (e) {
-         console.error(e);
+        console.error(e);
       });
+    },
+    toPay(){
+      var that = this;
+      // #ifdef MP_WEIXIN
+      if(that.subscribeData.status === 0){
+        wx.requestSubscribeMessage({
+          tmplIds: that.templateIds,
+          success: function () {},
+          fail: function () {},
+          complete: function () {
+            that.submit();
+          }
+        });
+      } else {
+        that.submit();
+      }
+      // #endif
+      // #ifdef H5
+      this.submit();
+      // #endif
     },
     getPayMethod(method){
       switch (method) {
@@ -376,7 +488,7 @@ export default {
       minute = Math.floor(seconds / 60) - hour * 60 - day * 24 * 60;
       showHour = showHour < 10 ? '0' + showHour : showHour;
       minute = minute < 10 ? '0' + minute : minute;
-      if (this.status !== 202) {
+      if (this.orderInfo.status !== 202) {
         this.h = showHour;
       } else {
         this.d = day;
@@ -394,7 +506,29 @@ export default {
         clearInterval(this.timer);
         this.timer = null;
       }
-    }
+    },
+    //售后信息
+    afterSalesInfo(afterOrderGoodId){
+      this.isTask = 0;
+      if (this.orderInfo.type && this.orderInfo.type === 3) {
+        this.isTask = 1;
+      }
+      uni.navigateTo({
+        url: '/pages/common/order/afterSale/after_sale_info?orderSn=' + this.orderInfo.orderSn + '&isTask=' + this.isTask + '&afterOrderGoodId=' + afterOrderGoodId
+      });
+    },
+    //申请售后
+    applyAfterSales(good, status) {
+      this.isTask = 0;
+      if (this.orderInfo.type && this.orderInfo.type === 3) {
+        this.isTask = 1;
+      }
+      console.info(this.orderInfo.orderSn);
+      debugger
+      uni.navigateTo({
+        url: '/pages/common/order/afterSale/after_sale_operate?orderSn=' + this.orderInfo.orderSn + '&goods=' +encodeURIComponent(JSON.stringify([good])) + '&status=' + status + '&isTask=' + this.isTask
+      });
+    },
   }
 }
 </script>
@@ -490,7 +624,6 @@ export default {
   height: 100rpx;
   padding: 0 24rpx;
   box-sizing: content-box;
-  //padding-bottom: env(safe-area-inset-bottom);
   background: #FFFFFF;
   display: flex;
   padding: 0 20px;
@@ -504,5 +637,29 @@ export default {
 
 .footer .plain.red {
   border: 1px solid #00ff00;
+}
+
+.detail-logistics {
+  margin: 0 20rpx 20rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  padding: 32rpx;
+  justify-content: space-between;
+}
+
+.icon-daishouhuo {
+  font-size: 30px;
+  color: rgb(215, 215, 215);
+}
+
+.iconbtn_arrow {
+  font-size: 28rpx;
+  color: #bebebe;
+}
+.pack-info {
+  width: 586rpx;
+  color: #222222;
+  line-height: 34px;
 }
 </style>

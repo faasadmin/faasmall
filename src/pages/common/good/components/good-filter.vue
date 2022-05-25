@@ -30,7 +30,7 @@
     </view>
     <view class="navbar-item">
       <view class="tag row-center" @tap="changeType">
-        <image class="img-sm" :src=" goodsType === 'one' ? '/static/img/common/icon_double.png' : '/static/img/common/icon_one.png'"></image>
+        <image class="img-sm" :src="goodsType === 'one' ?  doubleSelect : oneSelect"></image>
       </view>
     </view>
   </view>
@@ -45,7 +45,9 @@ export default {
       filterIndex: 0,
       priceSort: 0, //价格
       salesSort: 0, //销量
-      newProdcutSort: 0 //新品优先
+      newProdcutSort: 0, //新品优先,
+      doubleSelect: this.$FILE_URL + '/file/img/common/icon_double.png',
+      oneSelect: this.$FILE_URL + '/file/img/common/icon_one.png',
     }
   },
   computed: {

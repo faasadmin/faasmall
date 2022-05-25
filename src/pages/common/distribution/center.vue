@@ -1,22 +1,17 @@
 <template>
   <view>
-    <faasmall-navbar title="分销中心" :is-back="true"></faasmall-navbar>
     <view>
         <view style="height: 200rpx;width: 100%;background: #ff0013;padding: 20rpx">
           <view style="display: flex;align-items: center;height: 100%;width: 100%;justify-content: space-between">
             <view style="display: flex">
               <view>
-                <u-image src="http://dummyimage.com/375x180"  width="80rpx" height="80rpx" shape="circle"></u-image>
+                <u-image :src="memberInfo.avatar"  width="80rpx" height="80rpx" shape="circle"></u-image>
               </view>
               <view style="margin-left: 20rpx">
-                <view>fendo</view>
+                <view>{{memberInfo.nickName}}</view>
                 <view>推荐人:{{info.referrer}}</view>
               </view>
             </view>
-<!--            <view style="display: flex;flex-direction: column">
-              <text class="iconfont icon-paihangbang1" style="font-size: 30px"></text>
-              <text>榜单</text>
-            </view>-->
           </view>
         </view>
         <view style="position: relative;height: 120rpx">
@@ -25,10 +20,23 @@
                 <view style="flex: 1">
                   <view>分销等级：{{info.levelName}}</view>
                   <u-line-progress active-color="#2979ff" :percent="70"></u-line-progress>
-                  <text>升至{{info.nextName}}</text>
+                  <view v-if="info.nextLevel">
+                    <text>升至{{info.nextLevel.name}}</text>，
+                    <text v-if="info.nextLevel.difference">
+                      还需{{ info.nextLevel.difference.conditions }}{{ info.nextLevel.difference.differenceNum }}
+                    </text>
+                    <text v-else>已满足升级条件</text>
+                  </view>
                 </view>
-                <view style="margin-left: 20rpx;display: flex;justify-content: center;align-items: center">
-                  <u-button @click="$Router.push('/pages/common/distribution/grade')" size="mini">升级</u-button>
+                <view  v-if="info.nextLevel" style="margin-left: 20rpx;display: flex;justify-content: center;align-items: center">
+                  <!-- #ifndef H5 -->
+                  <u-button @click="goUpgrade" size="mini">升级</u-button>
+                  <!-- #endif -->
+                  <!-- #ifdef H5 -->
+                  <he-open-subscribe @open-subscribe-success="goUpgrade" :template-id="templateIds">
+                    <u-button size="mini">升级</u-button>
+                  </he-open-subscribe>
+                  <!-- #endif -->
                 </view>
             </view>
           </view>
@@ -40,7 +48,7 @@
                 <text>￥{{info.cumulativeCommission}}</text>
                 <view style="display: flex;align-items: center;justify-content: center">
                   <view style="background: red;width: 30rpx;height: 30rpx;border-radius: 50rpx"></view>
-                  <text>累计佣金</text>
+                  <text>{{distributionOtherData.cumulativeCommission}}</text>
                 </view>
               </view>
           </view>
@@ -51,7 +59,7 @@
                       <text>￥{{info.cashWithdrawal}}</text>
                       <view style="display: flex;align-items: center;justify-content: center;">
                         <view style="background: yellow;width: 30rpx;height: 30rpx;border-radius: 50rpx"></view>
-                        <text>已提现金额</text>
+                        <text>{{distributionOtherData.alreadyWithdrawable}}</text>
                       </view>
                     </view>
                     <view style="margin-left: 20rpx">
@@ -65,7 +73,7 @@
                     <text>￥{{info.pendingCommission}}</text>
                     <view style="display: flex;align-items: center;justify-content: center;">
                       <view style="background: green;width: 30rpx;height: 30rpx;border-radius: 50rpx"></view>
-                      <text>待结算佣金</text>
+                      <text>{{distributionOtherData.pending}}</text>
                     </view>
                   </view>
                   <view style="margin-left: 20rpx">
@@ -79,7 +87,7 @@
             <view style="background: #FFFFFF;height: 100%;width: 100%;display: flex;justify-content: space-between;align-items: center;padding: 0 40rpx;">
               <view style="display: flex;align-items: center;">
                 <view style="background: green;width: 30rpx;height: 30rpx;border-radius: 50rpx"></view>
-                <text style="margin-left: 20rpx">可提现金额</text>
+                <text style="margin-left: 20rpx">{{distributionOtherData.canWithdrawable}}</text>
               </view>
               <view>
                 ￥{{info.availableCashAmount}}
@@ -93,7 +101,7 @@
           <view style="display: flex;justify-content: space-between;align-items: center;background: #FFFFFF;padding: 20rpx">
             <view class="col-center-center" @tap="$Router.push('/pages/common/distribution/order')">
               <view>
-                <text>累计分销订单</text>
+                <text>{{distributionOtherData.cumulativeDistribution}}</text>
                 <text>></text>
               </view>
               <view>{{info.orderNum}}</view>
@@ -101,7 +109,7 @@
             <view style="height: 30px;width: 1px;background: #727272"></view>
             <view class="col-center-center" @tap="$Router.push('/pages/common/distribution/offline')">
               <view>
-                <text>累计下线人数</text>
+                <text>{{distributionOtherData.cumulativeOffline}}</text>
                 <text>></text>
               </view>
               <view>{{info.offlineNum}}</view>
@@ -113,28 +121,76 @@
 </template>
 
 <script>
-import {getDistributionCenterInfo} from "@/faasmall/api/distribution";
+import {getDistributionCenterInfo, getDistributionOpen} from "@/faasmall/api/distribution";
+import {mapGetters} from "vuex";
 
 export default {
   name: "index",
   data(){
     return{
-      info:{}
+      info:{
+        referrer:'',
+        levelName:'',
+        nextLevel:{},
+        cashWithdrawal:'',
+        pendingCommission:'',
+        availableCashAmount:'',
+      }
     }
   },
   onLoad(){
     this.init();
   },
+  computed: {
+    ...mapGetters(['isLogin','memberInfo','shopData','distributionOtherData','subscribeData']),
+    templateIds: function() {
+      let arr = [];
+      this.subscribeData.distributorUpgradeTid
+          ? arr.push(this.subscribeData.distributorUpgradeTid)
+          : null;
+      return arr;
+    },
+  },
   methods:{
+    goUpgrade(){
+      // #ifndef H5
+      const that = this;
+      if(that.subscribeData.status === 0){
+        wx.requestSubscribeMessage({
+          tmplIds: that.subTemplateId,
+          success: function () {},
+          fail: function () {},
+          complete: function () {
+            that.$Router.push('/pages/common/distribution/grade');
+          }
+        });
+      } else {
+        that.$Router.push('/pages/common/distribution/grade');
+      }
+      // #endif
+      // #ifdef H5
+      that.$Router.push('/pages/common/distribution/grade');
+      // #endif
+    },
     init(){
-      getDistributionCenterInfo().then((res)=>{
-        if(res.code === 0){
-          this.info = res.data;
-        }else {
-          uni.showToast({
-            title: res.msg,
-            duration: 2000,
-            icon: "none",
+      getDistributionOpen().then((res)=>{
+        if(res.code === 0 && res.data){
+          getDistributionCenterInfo().then((res)=>{
+            if(res.code === 0){
+              this.info = res.data;
+            }else {
+              uni.showToast({
+                title: res.msg,
+                duration: 2000,
+                icon: "none",
+              });
+            }
+          }).catch(err=>{
+            console.error(err);
+          })
+        } else {
+          uni.redirectTo({
+            url: 'pages/common/distribution/apply'
           });
         }
       }).catch(err=>{

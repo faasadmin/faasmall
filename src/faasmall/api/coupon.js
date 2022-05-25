@@ -22,3 +22,8 @@ export const getCoupon = (param) => {
     return http.get(setting.getApiUrl('coupon/get?id='+param.id),{auth:true})
 }
 
+//领取优惠卷
+export const receiveCoupon = (param) => {
+    return http.get(setting.getApiUrl('member/coupon/receive?id='+param.id),{auth:true})
+}
+

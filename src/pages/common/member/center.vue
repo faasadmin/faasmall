@@ -1,6 +1,5 @@
 <template>
     <view>
-        <faasmall-navbar title="会员中心" :is-back="true"></faasmall-navbar>
         <view class="head-wrap">
           <view  class="head-container">
             <view class="avatar">
@@ -8,7 +7,7 @@
             </view>
             <view class="content">
                 <view class="row-center-between">
-                  <view><text>fendo</text></view>
+                  <view><text>faasadmin</text></view>
                   <view v-if="gradeInfo.rule" @tap="$Router.push({path:'/pages/common/member/grade_rule',query:{rule:gradeInfo.rule}})"><text>规则</text></view>
                 </view>
                 <view>
@@ -166,7 +165,7 @@ export default {
   height: 170rpx;
   background: linear-gradient(90deg, #f8dca5, #efc480);
   border-radius: 10rpx;
-  mask: url('/static/img/coupon/coupon_mini_bg.png');
+  mask: url($FILE_URL +'/file/img/coupon/coupon_mini_bg.png');
   mask-size: 100% 100%;
   .card-left {
     height: 100%;

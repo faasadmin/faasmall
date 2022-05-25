@@ -1,19 +1,27 @@
 <template>
   <view>
-    <faasmall-navbar title="优惠卷详情" :is-back="true"></faasmall-navbar>
     <view class="content_box">
       <scroll-view class="scroll-box" scroll-y="true" scroll-with-animation enable-back-to-top :scroll-into-view="scrollId" @scroll="onScroll">
         <!-- 详情卡片 -->
         <view class="coupon-box">
           <view class="top u-flex-col u-col-center">
-            <view class="img-box u-flex u-row-center u-col-center"><image class="coupon-img" src="/static/img/coupon/coupon.png" mode=""></image></view>
+            <view class="img-box u-flex u-row-center u-col-center"><image class="coupon-img" :src="$FILE_URL + '/file/img/coupon/coupon.png'" mode=""></image></view>
             <view class="title">{{ couponData.discountPrice | setNumber }}元优惠券</view>
             <view class="tip">
-              <template v-if="Number(couponData.thresholdPrice) > 0"> 满{{ Number(couponData.thresholdPrice) }}可用 </template>
-              <template v-else> 无门槛使用 </template>
+              <view v-if="Number(couponData.thresholdPrice) > 0"> 满{{ Number(couponData.thresholdPrice) }}可用 </view>
+              <view v-else> 无门槛使用 </view>
             </view>
             <u-button type="primary">
-              <text v-if="$isEmpty(couponData.status)" @tap="goScroll">立即领取</text>
+              <view v-if="$isEmpty(couponData.status)">
+                <!-- #ifdef MP-WEIXIN -->
+                <text @tap="receive">立即领取</text>
+                <!-- #endif -->
+                <!-- #ifdef H5 -->
+                <faasmall-open-subscribe @open-subscribe-success="receive" :template-id="templateIds" :digital="couponData.id">
+                  <text>立即领取</text>
+                </faasmall-open-subscribe>
+                <!-- #endif -->
+              </view>
               <text v-else-if="couponData.status === 1" @tap="$Router.push('/pages/common/coupon/info')">立即使用</text>
               <text v-else-if="couponData.status === 2">已使用</text>
               <text v-else-if="couponData.status === 3">已失效</text>
@@ -37,30 +45,37 @@
 
 <script>
 import {getCoupon} from "@/faasmall/api/coupon";
-
+import {mapGetters} from "vuex";
+import {receiveCoupon} from "@/faasmall/api/member";
 export default {
   name: "detail",
   onLoad(){
     this.couponId = this.$Route.query.id;
-
     this.initData();
   },
   data() {
+    const _this = this;
     return {
+      $FILE_URL: _this.$FILE_URL,
       scrollId: '',
       couponId:'',
       couponData:{},
     };
   },
+  computed: {
+    ...mapGetters(['subscribeData']),
+    templateIds: function() {
+      return [this.subscribeData.couponExpiresTid];
+    },
+  },
   filters: {
     img: function (type) {
-
       if (type === 1) {
-        return '/static/img/coupon/coupon-used-icon.png';
+        return this.$FILE_URL + '/file/img/coupon/coupon-used-icon.png';
       } else if (type === 2) {
-        return '/static/img/coupon/coupon-expired-icon.png';
+        return this.$FILE_URL + '/file/img/coupon/coupon-expired-icon.png';
       } else if (type === 3) {
-        return '/static/img/coupon/coupon-unable-icon.png';
+        return this.$FILE_URL + '/file/img/coupon/coupon-unable-icon.png';
       }
     },
     setNumber: function (num) {
@@ -78,7 +93,7 @@ export default {
     onScroll() {
       this.scrollId = '';
     },
-    goScroll() {
+    use(){
       if (!this.couponId) {
         //this.getCoupon();
       } else {
@@ -89,6 +104,38 @@ export default {
         }
         this.scrollId = 'couponGoods';
       }
+    },
+    doReceive(){
+      receiveCoupon({id:this.couponId}).then((res)=>{
+        if(res.code === 0 ){
+          this.$refs.uToast.show({
+            title: '领取成功',
+            type: 'success'
+          })
+        }
+      }).catch(err=>{
+        console.error(err)
+      })
+    },
+    receive() {
+      let that = this;
+      // #ifdef MP-WEIXIN
+      if(that.subscribeData.status === 0){
+        wx.requestSubscribeMessage({
+          tmplIds: this.templateIds,
+          success: function() {},
+          fail: function() {},
+          complete: function() {
+            that.doReceive();
+          },
+        });
+      } else {
+        that.doReceive();
+      }
+      // #endif
+      // #ifdef H5
+      that.doReceive();
+      // #endif
     }
   }
 }

@@ -15,6 +15,7 @@ import {cacheKey, httpCode, httpContentType} from '../../common/constant.js';
 import setting from '../../common/config.js';
 import platform from '@/faasmall/utils/platform';
 import {isNotEmpty} from "@/faasmall/utils/faasmall";
+import store from '@/faasmall/store';
 
 const http = new Request()
 // 是否正在刷新的标记
@@ -29,7 +30,7 @@ let requests = []
 http.setConfig((config) => {
     /* 设置全局配置 */
     config.baseURL = setting.HOST + setting.API_PATH
-    var pf = platform.get();
+    let pf = platform.get();
     console.info('平台：' + pf);
     config.header = {
         ...config.header,
@@ -58,8 +59,6 @@ http.interceptors.request.use((config) => {
         ...config.header,
         //权限标识jwt
         [setting.TOKEN_KEY]: "Bearer " + token,
-        //客户端标识
-        platform: setting.PLATFORM
     }
     // 展示loading页面
     if (config.loading) {
@@ -97,59 +96,10 @@ http.interceptors.response.use(async (resp) => {
     // 	2.2 其他需要提示错误信息
     if (code === httpCode.JWTEXPIRE) {
         debugger
-        //记录本次请求,刷新token后再次执行
-        //是否刷新token中,防止重复刷新
-        if (!isRefreshing) {
-            debugger
-            //修改刷新状态为true
-            isRefreshing = true;
-            console.log("开始刷新token");
-            //#ifdef  H5
-            console.log('H5账号密码自动登陆自动登录')
-            var password = jwt.getPassword();
-            var account = jwt.getAccount();
-            if (isNotEmpty(password)) {
-                isAutoLogin = true;
-            } else {
-                //清空token
-                jwt.clearAccessToken();
-                return Promise.reject('请登录后操作')
-            }
-            //判断是否记住自动登陆
-            //#endif
-            debugger
-            if (isAutoLogin) {
-                //重新登录保存新的token
-                await silentLogin().then(function (res) {
-                    let data = res.data;
-                    let token = data.token;
-                    jwt.setAccessToken(token);
-                    jwt.refreshMemberInfo();
-                }).catch(function (err) {
-                    console.error('自动登录失败：' + err)
-                    //清空登陆缓存
-                    jwt.clearAccessToken();
-                });
-                console.log("刷新token成功");
-                console.log("开始执行队列请求！" + requests.length);
-                requests.forEach(cb => cb())
-                console.log("执行完成");
-                // 重试完了清空这个队列
-                requests = [];
-            }
-            isRefreshing = false;
-            isAutoLogin = false;
-            //重新执行本次请求
-            return http.request(config);
-        } else {
-            console.log("存入队列自动刷新token后再执行请求！");
-            return new Promise((resolve) => {
-                // 将resolve放进队列，用一个函数形式来保存，等token刷新后直接执行
-                requests.push(() => {
-                    resolve(http.request(config))
-                })
-            })
-        }
+        await store.dispatch("LogOut").then(res => {
+            jwt.logout();
+        })
+        throw (`登录已过期或注销,已阻止此次API请求`);
     }
     //服务端返回的状态码不等于200 也不等于401，则reject() 返回错误信息
     if (!msg) {

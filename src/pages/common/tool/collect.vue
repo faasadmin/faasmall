@@ -1,6 +1,6 @@
 <template>
   <view>
-    <faasmall-navbar title="我的收藏" :is-back="true">
+    <faasmall-navbar backText="我的收藏">
       <view class="navbar-right" slot="right" name="right">
         <view class="mr-1" @tap="editFnc()">
           <view class="stateText">
@@ -20,7 +20,7 @@
     <view class="fixed-container flex align-start" v-if="pageState">
       <view class="bottom-bar row-center-between">
         <view class="leftselctAll row-center-center" @click="selectAllfnc()">
-          <image class="selectIcon" v-if="selectAll" src="/static/img/common/select.png" mode=""></image>
+          <image class="selectIcon" v-if="selectAll" :src="$FILE_URL + '/file/img/common/select.png'" mode=""></image>
           <view v-else class="onSelect border-box"></view>
           <view class="selecttext">
             全选

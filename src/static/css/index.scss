@@ -413,7 +413,7 @@
     padding-left: 20rpx;
 }
 .home-page-top{
-    background-image: url(@/static/img/home/background_top.png);
+    background-image: url($FILE_URL + '/file/img/home/background_top.png');
     height: 200rpx;
     width: 100%;
 }
@@ -846,6 +846,19 @@
     overflow: hidden;
 }
 
+.coupon{
+    display: flex;
+    align-items: center;
+    //font-size: 5px;
+    padding: 20rpx;
+    height: 100%;
+    margin-right: 10rpx;
+    -webkit-mask: radial-gradient(circle at 0, transparent 5px, red 0), radial-gradient(circle at right, transparent 5px, red 0);
+    -webkit-mask-composite: source-in;
+    background-color: #fef0f0;
+    color: #fa3534;
+}
+
 .coupon-1 {
     width: 300px;
     height: 150px;
@@ -865,15 +878,12 @@
     background: linear-gradient(45deg, orange, red);
 }
 .coupon-3 {
-    //width: 160rpx;
     padding: 20rpx;
     height: 100%;
     margin-right: 10rpx;
     -webkit-mask: radial-gradient(circle at 0, transparent 5px, red 0), radial-gradient(circle at right, transparent 5px, red 0);
     -webkit-mask-composite: source-in;
-    background: linear-gradient(
-                    45deg
-            , orange, red);
+    background: linear-gradient(45deg, orange, red);
 }
 .coupon-4 {
     width: 300px;

@@ -3,6 +3,7 @@ import storage from '../utils/storage.js'
 import {cacheKey} from './constant.js';
 import {checkToken, login} from '../api/login';
 import store from "../store";
+import jwt from "@/faasmall/utils/cache/jwt";
 
 console.log(login)
 
@@ -140,7 +141,7 @@ function toLogin(data, callback) {
         let token = data.token;
         // #ifdef  MP
         // 小程序授权信息
-        updateToken(token, data, true)
+        jwt.setAccessToken(token)
         setTimeout(() => {
             callback(data)
         }, 500)

@@ -2,7 +2,9 @@ import store from '@/faasmall/store';
 //-----------------集成工具类---------------------------
 import tool from './common/tool'
 import platform from '@/faasmall/utils/platform';
+// #ifdef H5
 import wxsdk from '@/faasmall/common/wechat/sdk'
+// #endif
 import {
     uniShowToast,
     successToast,
@@ -53,7 +55,7 @@ export async function init(options) {
     // #ifdef H5
     platform.entry();
     // #endif
-    await store.dispatch("faasmallInit", options); // 加载商城基本信息
+    await store.dispatch("faaSmallInit", options); // 加载商城基本信息
 }
 
 export default {

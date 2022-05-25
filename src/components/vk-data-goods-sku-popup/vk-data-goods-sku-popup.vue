@@ -460,10 +460,13 @@ export default {
       that.open();
     }
   },
-  mounted() {},
+  mounted() {
+
+  },
   methods: {
     // 初始化
     init(notAutoClick) {
+      debugger
       let that = this;
       // 清空之前的数据
       that.selectArr = [];
@@ -552,6 +555,7 @@ export default {
       that.complete = true;
     },
     async open() {
+      debugger
       let that = this;
       that.openTime = new Date().getTime();
       let findGoodsInfoRun = true;
@@ -559,6 +563,7 @@ export default {
       // 先获取缓存中的商品信息
       let useCache = false;
       let goodsInfo = goodsCache[that.goodsId];
+      debugger
       if (goodsInfo && that.useCache) {
         useCache = true;
         that.updateGoodsInfo(goodsInfo);
@@ -804,9 +809,9 @@ export default {
           selectShop.selectWhole = that.selectWhole;
           that.$emit('add-cart', selectShop);
           that.$emit('cart', selectShop);
-          // setTimeout(function() {
-          // 	that.init();
-          // }, 300);
+          setTimeout(function() {
+          	that.init();
+          }, 300);
         }
       });
     },

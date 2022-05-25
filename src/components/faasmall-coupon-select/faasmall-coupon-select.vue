@@ -42,7 +42,7 @@
           </view>
         </view>
         <view class="modal-foot x-c">
-          <button class="cu-btn serve-btn" @tap="saveCoupon">确定</button>
+          <button class="fs-btn serve-btn" @click="saveCoupon">确定</button>
         </view>
       </view>
     </view>

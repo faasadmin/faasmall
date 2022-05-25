@@ -1,5 +1,5 @@
 <p align="center">
-    <a target="_blank" href="https://www.yuque.com/fendo-ubr0z/faasmall">
+    <a target="_blank" href="https://www.yuque.com/faasadmin-ubr0z/faasmall">
         <img src="https://img.shields.io/badge/Docs-latest-blue.svg"/>
     </a>
     <a target="_blank" href="https://gitee.com/faasadmin/faasmall">

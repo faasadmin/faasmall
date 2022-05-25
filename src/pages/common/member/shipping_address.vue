@@ -1,6 +1,5 @@
 <template>
   <view>
-    <faasmall-navbar :is-back="true" title="地址管理"></faasmall-navbar>
     <view class="item mt-1" v-for="(res, index) in addressList" :key="res.id">
       <view class="top">
         <view class="name">{{ res.name }}</view>

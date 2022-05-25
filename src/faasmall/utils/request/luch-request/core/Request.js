@@ -96,8 +96,7 @@ export default class Request {
   get(url, options = {}) {
     if(options.hasOwnProperty("auth")){
       if(options.auth){
-        //jwt.verifyLogin();
-        jwt.autoLogin();
+        jwt.verifyLogin();
       }
     }
     return this.middleware({
@@ -109,8 +108,7 @@ export default class Request {
   postJson(url, data, options = {}) {
     if(options.hasOwnProperty("auth")){
        if(options.auth){
-         //jwt.verifyLogin();
-         jwt.autoLogin();
+         jwt.verifyLogin();
        }
     }
     http.setConfig((config) => {

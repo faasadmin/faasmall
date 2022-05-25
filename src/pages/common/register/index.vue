@@ -6,42 +6,56 @@
         <image src="/static/logo.png"></image>
       </view>
       <view class="input-content">
-        <view class="cu-form-group" style="border: 1px solid whitesmoke;margin-bottom: 20px;border-radius: 30px">
+        <view class="cu-form-group" style="border: 1px solid whitesmoke;border-radius: 30px;display: flex">
           <view class="title">手机号</view>
-          <input type="number" :value="mobile" placeholder="请输入手机号" maxlength="11" data-key="mobile" @input="inputChange" />
+          <u-input type="number"
+                 v-model="register.data.mobile"
+                 @blur="checkValue($event, 'mobile')"
+                 @input="mobileInput($event, 'mobile')"
+                 placeholder="请输入手机号" style="flex: 1" />
         </view>
-        <view class="cu-form-group" style="border: 1px solid whitesmoke;margin-bottom: 20px;border-radius: 30px">
-          <text class="title">验证码</text>
-          <input type="number" :value="code" placeholder="请输入验证码" maxlength="6" data-key="code" @input="inputChange"
-                 @confirm="toRegister" />
-          <button class="send-msg" @click="sendCode" :disabled="sending">{{sendTime}}</button>
+        <view class="message-error">{{ register.error.mobile || '' }}</view>
+        <view class="cu-form-group" style="border: 1px solid whitesmoke;border-radius: 30px">
+            <text class="title">验证码</text>
+            <u-input type="number" v-model="register.data.code" placeholder="请输入验证码"
+                   @blur="checkValue($event, 'code')"
+                   @input="checkValue($event, 'code')"/>
+          <button class="u-reset-button code-btn code-btn-start"
+                  :class="{ 'code-btn-end': forgot.data.isMobileEnd }"
+                  @click="sendCode" :disabled="!forgot.data.isMobileEnd">{{codeText}}</button>
         </view>
-        <view class="cu-form-group" style="border: 1px solid whitesmoke;margin-bottom: 20px;border-radius: 30px">
+        <view class="message-error">{{ register.error.code || '' }}</view>
+        <view class="cu-form-group" style="border: 1px solid whitesmoke;border-radius: 30px;display: flex">
           <text class="title">设置密码</text>
-          <input type="password" :value="password" placeholder="请设置新密码" placeholder-class="input-empty" maxlength="20"
-                 minlength="6" data-key="password" @input="inputChange" @confirm="toRegister" />
+          <u-input type="password" v-model="register.data.password"
+                 placeholder="请设置新密码" style="flex: 1" placeholder-class="input-empty"
+                 @blur="checkValue($event, 'password')"
+                 @input="checkValue($event, 'password')"/>
         </view>
-        <view v-if="!invitations" class="cu-form-group" style="border: 1px solid whitesmoke;margin-bottom: 20px;border-radius: 30px">
+        <view class="message-error">{{ register.error.password || '' }}</view>
+        <view v-if="!invitations" class="cu-form-group" style="border: 1px solid whitesmoke;border-radius: 30px;display: flex">
           <text class="title">邀请码</text>
-          <input type="number" :value="invitation" placeholder="请填写邀请码" data-key="invitation" maxlength="20" @input="inputChange"
+          <input type="number" v-model="invitation" style="flex: 1" placeholder="请填写邀请码"  maxlength="6"
                  @confirm="toRegister" />
-          <text v-if="!invitations" class="send-msgs" @click="invitationCode">获取官方邀请码</text>
+          <text v-if="!invitations" class="send-msgs" @click="invitationCode">官方邀请码</text>
         </view>
       </view>
-      <button :class="mobile&&code&&password&&protocol?'confirm-btn':'confirm-btn1'" @click="toRegister">立即注册
+      <button :class="register.data.mobile&&register.data.code&&register.data.password&&protocol?'confirm-btn':'confirm-btn1'" @click="toRegister">立即注册
       </button>
       <view class="footer">
-        <u-checkbox-group>
-          <u-checkbox
-              @change="isAgreeChange"
-              v-model="item.checked"
-              v-for="(item, index) in agreeList" :key="index"
-              :name="item.name"
-          >{{item.name}}</u-checkbox>
-        </u-checkbox-group>
-        <!-- 协议地址 -->
-        <navigator url="/pages/my/common/privacy" open-type="navigate">《隐私政策》</navigator>和
-        <navigator url="/pages/my/common/protocol" open-type="navigate">《用户服务协议》</navigator>
+        <!-- 协议 -->
+        <view class="agreement-box u-flex u-row-center mt-2">
+          <u-checkbox v-model="protocol" shape="circle" active-color="#FF0505">
+            <view class="agreement-text tcp-text u-flex u-col-center">
+              我已阅读并遵守
+              <view class="tcp-text u-flex u-col-center">
+                <view @tap.stop="$Router.push({ path: '/pages/common/public/rich_text', query: {  type: 'register'} })">《用户协议》</view>
+                与
+                <view @tap.stop="$Router.push({ path: '/pages/common/public/rich_text', query: { type: 'privacy'} })">《隐私协议》</view>
+              </view>
+            </view>
+          </u-checkbox>
+        </view>
       </view>
     </view>
   </view>
@@ -50,101 +64,168 @@
 <script>
 import {doRegister, getRegisterCode} from "@/faasmall/api/register";
 import jwt from "@/faasmall/utils/cache/jwt";
+import validate from "@/faasmall/utils/validate";
+import schema from "uview-ui/libs/util/async-validator";
 
 export default {
   data() {
     return {
-      code: '',
-      mobile: '',
-      password: '',
-      protocol:'',
-      sending: false,
-      sendTime: '获取验证码',
-      count: 60,
+      protocol: false, //是否同意隐私协议
+      codeText: '获取验证码',
       invitation: '',
       invitations: '',
-      agreeList: [
-        {
-          name: '同意',
-          checked: false,
-          disabled: false
+      disabledCode: false,
+      // 绑定手机号
+      register: {
+        data: {
+          mobile: '', //手机号
+          code: '', //验证码
+          password:'',//密码
+          invitation:'',//邀请码
+          isMobileEnd: false // 手机号输入完毕
         },
-      ],
+        rules: {
+          code: validate.code,
+          mobile: validate.mobile,
+          password: validate.password
+        },
+        error: {
+          mobile: '', //手机号
+          code: '', //验证码
+          password:''
+        }
+      },
     }
   },
   onShow(){
 
   },
   methods: {
-    isAgreeChange() {
-      //是否选择协议
-      this.agreeList[0].checked = !this.agreeList[0].checked;
-      if(!this.agreeList[0].checked){
-        this.protocol = '';
-      }else{
-        this.protocol = 'checked';
+    // 检测
+    checkValue(e, key) {
+      this.validation(key);
+    },
+    // 校验数据
+    validation(key, callback = () => {}) {
+      let that = this;
+      //拿到需要校验的数据
+      let fieldValue = this.register.data[key];
+      //拿到需要检验的规则
+      let rules = this.register.rules[key];
+      // 判空
+      if (!rules || rules.length === 0) {
+        return callback('');
       }
+      // 设置当前的装填，标识为校验中
+      let validateState = 'validating';
+      // 调用async-validator的方法
+      let validator = new schema({
+        [key]: rules
+      });
+      debugger
+      // 校验
+      validator.validate(
+          {
+            [key]: fieldValue
+          },
+          {
+            firstFields: true
+          },
+          (errors, fields) => {
+            // 记录状态和报错信息
+            validateState = !errors ? 'success' : 'error';
+            debugger
+            let validateMessage = errors ? errors[0].message : '';
+            that.register.error[key] = validateMessage;
+            callback(validateMessage);
+          }
+      );
+    },
+    // 校验全部数据
+    validateAll(callback) {
+      let that = this;
+      return new Promise(resolve => {
+        // 对当前所有表单检验
+        let valid = true; // 默认通过
+        let count = 0; // 用于标记是否检查完毕
+        let errorArr = []; // 存放错误信息
+        let curFormData = that.register.data;
+        debugger
+        Object.keys(curFormData).map(field => {
+          console.info(field + '+-+-');
+          ++count;
+          that.validation(field, error => {
+            // 如果回调有error
+            if (error) {
+              valid = false;
+              errorArr.push(error);
+            }
+            if (count === Object.keys(curFormData).length) {
+              resolve(valid);
+              if (errorArr.length) {
+                this.$u.toast(errorArr[0]);
+              }
+              if (typeof callback == 'function'){
+                callback(valid);
+              }
+            }
+          });
+        });
+      });
+    },
+    // 手机号是否输入完毕
+    mobileInput(e, key) {
+      this.register.data.isMobileEnd = this.$u.test.mobile(this.register.data.mobile);
+      debugger
+      this.validation(key);
     },
     //官方邀请码
     invitationCode() {
       console.info('邀请码' + this.$store.state);
       this.invitation = this.$store.state.official_invitation_code;
     },
-    //获取验证码
-    sendCode() {
-      const {
-        mobile
-      } = this;
-      if (!mobile) {
-        this.$refs.uToast.show({
-          title: '请输入手机号',
-          type: 'error',
-        })
-      } else if (mobile.length !== 11) {
-        this.$refs.uToast.show({
-          title: '请输入正确的手机号',
-          type: 'error',
-        })
-      } else {
-        this.$refs.uToast.show({
-          title: '正在发送验证码...',
-          type: 'success',
-        })
-          getRegisterCode({
-            mobile: this.mobile,
-            scene:4,
-            templateCode: 0
-          }).then(res => {
-              if (res.code === 0) {
-                this.sending = true;
-                this.$u.toast("发送成功");
-                this.countDown();
-                uni.hideLoading();
-              } else {
-                uni.hideLoading();
-                uni.showModal({
-                  showCancel: false,
-                  title: '短信发送失败',
-                  content: res.msg,
-                });
-              }
-            });
+    checkProtocol(){
+      if (!this.protocol) {
+        this.$u.toast('请同意用户协议');
+        return false;
       }
     },
-    countDown() {
-      const {
-        count
-      } = this;
-      if (count === 1) {
-        this.count = 60;
-        this.sending = false;
-        this.sendTime = '获取验证码'
+    //获取验证码
+    sendCode() {
+      const that = this;
+      if (that.register.data.isMobileEnd && !that.disabledCode) {
+        getRegisterCode({
+          mobile: that.register.data.mobile,
+          scene:4,
+          templateCode: 0
+        }).then(res => {
+          if (res.code === 0) {
+            that.codeChange();
+            that.$u.toast('验证码已发送，请注意查收短信');
+          } else {
+            that.$u.toast(res.msg);
+          }
+        });
       } else {
-        this.count = count - 1;
-        this.sending = true;
-        this.sendTime = count - 1 + '秒后重新获取';
-        setTimeout(this.countDown.bind(this), 1000);
+        that.$u.toast('请稍后再试');
       }
+    },
+    codeChange() {
+      if (this.disabledCode) return;
+      this.disabledCode = true;
+      let n = 10;
+      this.codeText = n + 's';
+      const run = setInterval(() => {
+        n -= 1;
+        if (n < 0) {
+          clearInterval(run);
+        }
+        this.codeText = n + 's';
+        if (this.codeText < 0 + 's') {
+          this.disabledCode = false;
+          this.codeText = '重新获取';
+        }
+      }, 1000);
     },
     inputChange(e) {
       const key = e.currentTarget.dataset.key;
@@ -158,71 +239,37 @@ export default {
         url
       })
     },
-    toRegister() {
-      const {
-        mobile,
-        password,
-        code,
-        showAgree = this.agreeList[0].checked,
-        invitation
-      } = this;
-      if (!mobile) {
-        this.$refs.uToast.show({
-          title: '请输入账号',
-          type: 'error',
-        })
-      } else if (!password) {
-        this.$refs.uToast.show({
-          title: '请设置密码',
-          type: 'error',
-        })
-      } else if (password.length < 8) {
-        this.$refs.uToast.show({
-          title: '密码位数必须大于八位',
-          type: 'error',
-        })
-      } else if (!showAgree) {
-        this.$refs.uToast.show({
-          title: '请先同意《协议》',
-          type: 'error',
-        })
-      } else {
-        this.logining = true;
-        this.$refs.uToast.show({
-          title: '注册中...'
-        })
-        debugger
-        doRegister({
-          mobile: this.mobile,
-          password: this.password,
-          code: this.code,
-          invitation: this.invitation,
-          platform: this.$platform.get(),
-        }).then(res => {
-            if (res.code === 0) {
-              this.sending = true;
-              this.$refs.uToast.show({
-                title: '注册成功',
-                type: 'success',
-              })
-              uni.hideLoading();
-              // setTimeout(() => {
-              //   uni.reLaunch({
-              //     url: '/pages/login/login'
-              //   });
-              // }, 500);
-              //去登陆
-              jwt.verifyLogin();
-            } else {
-              uni.hideLoading();
-              uni.showModal({
-                showCancel: false,
-                title: '注册失败',
-                content: res.msg,
-              });
-            }
+    // 规则校验
+    validateSubmit() {
+      return this.validateAll();
+    },
+    async toRegister() {
+      const that = this;
+      that.checkProtocol();
+      (await that.validateSubmit()) && doRegister({
+        mobile: that.register.data.mobile,
+        password: that.register.data.password,
+        code: that.register.data.code,
+        invitation: that.register.data.invitation,
+        platform: that.$platform.get(),
+      }).then(res => {
+        if (res.code === 0) {
+          this.$refs.uToast.show({
+            title: '注册成功',
+            type: 'success',
+          })
+          uni.hideLoading();
+          //去登陆
+          jwt.verifyLogin();
+        } else {
+          uni.hideLoading();
+          uni.showModal({
+            showCancel: false,
+            title: '注册失败',
+            content: res.msg,
           });
-      }
+        }
+      });
     },
   },
 
@@ -232,6 +279,12 @@ export default {
 <style lang='scss'>
 page {
   background: #fff;
+}
+.message-error{
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  color: red;
 }
 .logo {
   width: 260rpx;
@@ -257,6 +310,7 @@ page {
   text-align: justify;
   padding-right: 15px;
   font-size: 15px;
+  width: 75px;
   position: relative;
   height: 30px;
   line-height: 30px;
@@ -273,15 +327,31 @@ page {
   margin-top: 32upx;
   text-align: center;
   display: flex;
+  align-items: center;
 }
 
 .send-msg {
-  border-radius: 30px;
-  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 10px !important;
   height: 30px;
-  font-size: 14px;
-  line-height: 30px;
-  background: #e10a07;
+  border-radius: 25px;
+}
+.code-btn-end {
+  opacity: 1 !important;
+}
+.code-btn[disabled] {
+  background-color: #fff;
+}
+.code-btn-start {
+  width: 160rpx !important;
+  line-height: 56rpx !important;
+  border: 1rpx solid #FF0505 !important;
+  border-radius: 28rpx;
+  font-size: 26rpx;
+  font-weight: 400;
+  color: #FF0505 !important;
+  opacity: 0.5;
 }
 
 .send-msgs {
@@ -345,7 +415,7 @@ page {
         color-stop(100%, #fbaa58));
     background: -webkit-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
     background: -o-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
-    background: -ms-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
+    background: -faas-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
     background: linear-gradient(to left, #fa4dbe 0, #fbaa58 100%);
   }
 
@@ -384,7 +454,7 @@ page {
 }
 
 .input-content {
-  padding: 0 20px;
+  padding: 0 10px;
 }
 
 .input-item {
@@ -396,7 +466,7 @@ page {
   background: #f8f6fc;
   height: 64px;
   border-radius: 4px;
-  margin-bottom: 30px;
+  //margin-bottom: 30px;
 
   &:last-child {
     margin-bottom: 0;
@@ -468,4 +538,21 @@ page {
     margin-left: 10px;
   }
 }
+.u-reset-button {
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  background-color: transparent;
+  color: inherit;
+  transform: translate(0rpx, 0rpx);
+}
+.u-reset-button.button-hover {
+  transform: translate(1upx, 1upx);
+}
+
+.u-reset-button::after {
+  border: none;
+}
+/* end--去除button的所有默认样式--end */
 </style>

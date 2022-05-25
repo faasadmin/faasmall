@@ -109,6 +109,74 @@ const install = (Vue, vm) => {
 			}
 		})
 	}
+
+	//获取场景变量
+	const getSceneVariable = (scene, variable) => {
+		var vars = scene.split('&');
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split('=');
+			if (pair[0] == variable) {
+				return pair[1];
+			}
+		}
+		return false;
+	}
+
+	const copyValue = ( content, success, error) => {
+		if (!content) return error('the content can not be blank');
+		content = typeof content === 'string' ? content : content.toString();
+		// #ifndef H5
+		uni.setClipboardData({
+			data: content,
+			success: function () {
+				success && success('copy successfully');
+				uni.showToast({
+					title: '内容已复制',
+					icon: 'none'
+				});
+			},
+			fail: function () {
+				error && error('Copy failed');
+			}
+		});
+		// #endif
+		// #ifdef H5
+		if (!document.queryCommandSupported('copy')) {
+			error && error('Browser does not support');
+		}
+		let textarea = document.createElement('textarea');
+		textarea.value = content;
+		textarea.readOnly = 'readOnly';
+		document.body.appendChild(textarea);
+		textarea.select();
+		textarea.setSelectionRange(0, content.length);
+		let result = document.execCommand('copy');
+		if (result) {
+			uni.showToast({
+				title: '内容已复制',
+				icon: 'none'
+			});
+			success && success('copy successfully');
+		} else {
+			error && error('copy failed');
+		}
+		textarea.remove();
+		// #endif
+	}
+
+	const doPreviewImage = (url, images) =>{
+		uni.previewImage({
+			urls: images,
+			current: url,
+			fail: function f(e) {
+				uni.showToast({
+					title: '预览图片失败',
+					icon: 'none'
+				});
+			}
+		});
+	}
+
 	Vue.prototype.$u.func = {
 		isLogin,
 		checkLogin,
@@ -116,7 +184,10 @@ const install = (Vue, vm) => {
 		paramsToObj,
 		refreshPage,
 		showToast,
-		uploadImage
+		uploadImage,
+		getSceneVariable,
+		copyValue,
+		doPreviewImage
 	}
 	// 将各个定义的方法，统一放进对象挂载到vm.$u.func(因为vm就是this，也即this.$u.func)下
 }

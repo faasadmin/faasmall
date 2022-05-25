@@ -1,15 +1,15 @@
 <template>
   <view>
-    <faasmall-navbar title="我的粉丝" :is-back="true"></faasmall-navbar>
+    <!-- 空白页 -->
     <view>
       <view class="border-bottom" style="background: #FFFFFF">
-        <u-tabs-swiper v-if="tabList && tabList.length > 0" ref="uTabs" :list="tabList" name="name" count="count" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
+        <u-tabs-swiper active-color="#FF0505" v-if="tabList && tabList.length > 0" ref="uTabs" :list="tabList" name="name" count="count" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
         <view style="display: flex;justify-content: space-between;align-items: center;padding: 20rpx">
           <view>
             <text>今日新增{{tabList[this.tabCurrentIndex].addedToday ===''?0:tabList[this.tabCurrentIndex].addedToday}}人</text>
           </view>
           <view>
-            <text>今日流失{{tabList[this.tabCurrentIndex].churnToday ===''?0:tabList[this.tabCurrentIndex].churnToday}}人</text>
+            <text>今日流失{{tabList[this.tabCurrentIndex].outflowToday ===''?0:tabList[this.tabCurrentIndex].outflowToday}}人</text>
           </view>
         </view>
       </view>
@@ -18,32 +18,34 @@
           <scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="loadMoreOffLine">
             <!-- 空白页 -->
             <u-empty v-if="tabItem.empty === true && tabItem.offlineList.length === 0" text="暂无数据" mode="list"></u-empty>
-            <view class="list-wrap">
-              <view class="list-item border-bottom" v-for="(item, index) in tabItem.offlineList" :key="index" >
-                <view style="display: flex;justify-content: space-between;align-items: center">
-                  <view>
-                    <u-image :src="item.avatar"  width="80rpx" height="80rpx" shape="circle"></u-image>
+            <view style="display: flex;background: #FFFFFF;">
+              <view class="border-bottom" v-for="(item, index) in tabItem.offlineList" :key="index" style="width: 100%;display: flex;flex-direction: column;justify-content: space-between;padding: 20px;height:120px;align-items: center;">
+                <view style="display: flex;justify-content: space-between;align-items: center;width: 100%">
+                  <view style="display: flex;justify-content: flex-start;">
+                    <view>
+                      <u-image :src="item.avatar"  width="80rpx" height="80rpx" shape="circle"></u-image>
+                    </view>
+                    <view>
+                      <view>{{item.userName}}</view>
+                      <view>{{item.joinTime | timeFormat('yyyy-mm-dd') }}</view>
+                    </view>
                   </view>
                   <view>
-                    <view>{{item.nickName}}</view>
-                    <view>{{item.joinTime}}</view>
-                  </view>
-                  <view>
-                    推广：{{item.spreadNum}}人
+                    邀请：{{item.inviteNumber}}人
                   </view>
                 </view>
-                <view style="display: flex;">
-                  <view>
+                <view style="display: flex;width: 100%;justify-content: space-between">
+                  <view style="display: flex;flex-direction:column;align-items: center;justify-content: center">
                       <view>￥{{item.goodAmount}}</view>
                       <view>商品金额</view>
                   </view>
-                  <view style="height: 100%;width: 1px;background:red"></view>
-                  <view>
-                    <view>￥{{item.orderNumber}}</view>
-                    <view>订单数</view>
+                  <view style="height: 100%;width: 1px;background:#F2F2F2"></view>
+                  <view style="display: flex;flex-direction:column;align-items: center;justify-content: center">
+                    <view>{{item.orderNumber}}</view>
+                    <view>订单总数</view>
                   </view>
-                  <view style="height: 100%;width: 1px;background:red"></view>
-                  <view>
+                  <view style="height: 100%;width: 1px;background:#F2F2F2"></view>
+                  <view style="display: flex;flex-direction:column;align-items: center;justify-content: center">
                     <view>￥{{item.contributionCommission}}</view>
                     <view>贡献佣金</view>
                   </view>
@@ -65,6 +67,7 @@ import {
   getDistributionOrderPage
 } from "@/faasmall/api/distribution";
 import {isNotEmpty} from "@/faasmall/utils/faasmall";
+import {mapGetters} from "vuex";
 
 export default {
   name: "offline",
@@ -80,8 +83,10 @@ export default {
       tabCurrentIndex: 0,
       tabList:[{
         name:'暂无',
+        //今日新增
         addedToday:'',
-        churnToday:'',
+        //今日流失
+        outflowToday:'',
       }],
       tabData: [{
         status: '1',
@@ -123,7 +128,18 @@ export default {
     })
     this.loadData();
   },
+  computed: {
+    ...mapGetters(['isLogin','memberInfo','shopData','distributionOtherData']),
+  },
   mounted(){
+    console.info(this.shopData);
+    console.info(this.$store.state.faasmall.distributionOther.twoOffline);
+    console.info(this.distributionOtherData.twoOffline);
+    debugger
+    this.tabData[0].text = this.distributionOtherData.oneOffline;
+    this.tabData[1].text = this.distributionOtherData.twoOffline;
+    this.tabData[2].text = this.distributionOtherData.threeOffline;
+    debugger
     let that = this;
     let info = uni.createSelectorQuery().select(".scrollbox");
     info.boundingClientRect(function(data) { //data - 各种参数
@@ -175,20 +191,23 @@ export default {
         debugger
         if(res.code === 0){
           let list = res.data.list;
-          list.forEach(item => {
-            navItem.offlineList.push(item);
-          });
-          navItem.total = res.data.total;
-          if (res.data.list.length === navItem.offlineList.length) {
-            //判断是否还有数据， 有改为 more， 没有改为noMore
-            navItem.loadingType = 'nomore';
-          } else {
-            //判断是否还有数据， 有改为 more， 没有改为noMore
-            navItem.loadingType = 'loadmore';
+          debugger
+          if(list.length > 0){
+            list.forEach(item => {
+              navItem.offlineList.push(item);
+            });
+            navItem.total = res.data.total;
+            if (res.data.list.length === navItem.offlineList.length) {
+              //判断是否还有数据， 有改为 more， 没有改为noMore
+              navItem.loadingType = 'nomore';
+            } else {
+              //判断是否还有数据， 有改为 more， 没有改为noMore
+              navItem.loadingType = 'loadmore';
+            }
+            this.$set(navItem, 'empty', true);
+          }else {
+            this.$set(navItem, 'empty', true);
           }
-          console.log(navItem)
-          this.$set(navItem, 'empty', true);
-          console.log(this.tabData)
         } else {
           uni.showToast({
             title: res.msg,

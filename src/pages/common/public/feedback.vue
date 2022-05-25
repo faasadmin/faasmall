@@ -1,7 +1,6 @@
 <template>
   <view>
     <u-toast ref="uToast" />
-    <faasmall-navbar title="意见反馈" :is-back="true"></faasmall-navbar>
     <view>
       <u-form :model="form" ref="uForm">
         <view class="feedback-wrap u-p-30">
@@ -28,7 +27,7 @@
                       :showProgress="false"
                       @on-uploaded="uploadSuccess"
                       @on-remove="uploadRemove"
-                      :header="this.authorization"
+                      :header="authorization"
                       :form-data="{'type':'feed_back'}"
                       action="http://127.0.0.1:8089/api/plugins/faas-mall-addons/api/common/upload"
                       width="140"
@@ -51,7 +50,7 @@
     </view>
     <!-- 底部按钮 -->
     <view class="foot_box u-flex u-row-between fixed-bottom">
-      <u-button type="primary" size="default" shape="square" @tap="submit">提交</u-button>
+      <u-button type="primary" shape="square" @tap="submit">提交</u-button>
     </view>
   </view>
 </template>
@@ -59,11 +58,12 @@
 <script>
 import {addFeedBack, getFeedBackCategory} from "@/faasmall/api/feedback";
 import jwt from "@/faasmall/utils/cache/jwt";
+import setting from "@/faasmall/common/config";
 export default {
   components: {},
   data() {
     return {
-      authorization:{'Authorization': "Bearer " +  jwt.getAccessToken()},
+      authorization:{'Authorization': "Bearer " +  jwt.getAccessToken(),'appId': setting.APP_ID},
       form: {
         category: '',
         content: '',
@@ -209,5 +209,8 @@ page{
   height: 100rpx;
   width: 100%;
   background: #FFFFFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

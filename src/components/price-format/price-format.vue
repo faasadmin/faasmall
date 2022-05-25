@@ -76,7 +76,7 @@ export default {
 </script>
 <style>
 .price-format {
-  font-family: Avenir;
-  padding: 0px 10px;
+  //font-family: Avenir;
+  //padding: 0px 10px;
 }
 </style>

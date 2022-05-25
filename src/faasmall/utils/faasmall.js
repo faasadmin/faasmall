@@ -47,7 +47,6 @@ export function handleTree(data, id, parentId, children, rootId) {
  * 树转list
  */
 export function treeToAppMenuList(tree){
-    
     for(var i in tree){
         var node = tree[i];
         list = [];  //结果lsit

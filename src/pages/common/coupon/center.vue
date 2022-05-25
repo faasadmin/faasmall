@@ -1,6 +1,5 @@
 <template>
   <view>
-    <faasmall-navbar title="优惠卷中心" :is-back="true"></faasmall-navbar>
   </view>
 </template>
 

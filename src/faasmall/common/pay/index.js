@@ -14,7 +14,7 @@ import {submitOrders} from "@/faasmall/api/order";
 export default class FaasMallPay {
 
 
-	//						wxOfficialAccount			wxMiniProgram			App						H5
+	//						   wx_mp_account			       wx_ma_program			app						h5
 	// 			wechat			公众号JSSDK支付				小程序支付			微信开放平台支付			H5网页支付
 	//			alipay			复制网址						复制网址				支付宝开放平台支付		    直接跳转链接
 	// 			wallet			v							v					v						v
@@ -23,54 +23,53 @@ export default class FaasMallPay {
 		this.payment = payment;
 		this.order = order;
 		this.platform = $platform.get();
-		debugger
 		let payMehod = this.getPayMethod();
 		payMehod();
 	}
 
 	getPayMethod() {
 		var payMethod = {
-			'wxOfficialAccount': {
-				1: () => {
+			'wx_mp_account': {
+				'wx': () => {
 					this.wxOfficialAccountPay()
 				},
-				2: () => {
+				'alipay': () => {
 					this.copyPayLink()
 				},
-				3: () => {
+				'wallet': () => {
 					this.walletPay()
 				}
 			},
-			'wxMiniProgram': {
-				1: () => {
+			'wx_ma_program': {
+				'wx': () => {
 					this.wxMiniProgramPay()
 				},
-				2: () => {
+				'alipay': () => {
 					this.copyPayLink()
 				},
-				3: () => {
+				'wallet': () => {
 					this.walletPay()
 				}
 			},
-			'App': {
-				1: () => {
+			'app': {
+				'wx': () => {
 					this.wechatPay()
 				},
-				2: () => {
+				'alipay': () => {
 					this.aliPay()
 				},
-				3: () => {
+				'wallet': () => {
 					this.walletPay()
 				},
 			},
-			'H5': {
-				1: () => {
+			'h5': {
+				'wx': () => {
 					this.wechatWapPay()
 				},
-				2: () => {
+				'alipay': () => {
 					this.goToPayLink()
 				},
-				3: () => {
+				'wallet': () => {
 					this.walletPay()
 				},
 			},
@@ -83,7 +82,7 @@ export default class FaasMallPay {
 		return new Promise((resolve, reject) => {
 			let that = this;
 			let params = {
-				payOrderId: that.order.payOrderId,
+				paySn: that.order.paySn,
 				payment: that.payment,
 				platform: that.platform
 			}
@@ -111,20 +110,18 @@ export default class FaasMallPay {
 		wxsdk.wxpay(result.data.pay_data, (res) => {
 			res.errMsg == "chooseWXPay:ok" ? that.payResult('success') : that.payResult('fail')
 		});
-
 	}
-
 	//浏览器微信支付
 	async wechatWapPay() {
 		let that = this;
 		let result = await this.prepay();
-		if (result.code === 1) {
+		if (result.code === 0) {
 			var url = result.data.pay_data.match(/url\=\'(\S*)\'/);
 			let reg = new RegExp('&amp;', 'g') //g代表全部
 			let newUrl = url[1].replace(reg, '&');
 			let domain =store.getters.shopData.domain; //域名需要https
 			let params = encodeURIComponent(
-				`${domain}pages/order/payment/result?orderId=${that.order.id}&type=${that.payment}`)
+				`${domain}pages/common/pay/result?orderId=${that.order.id}&orderSn=${that.order.orderSn}&type=${that.payment}`)
 			window.location.href = newUrl + '&redirect_url=' + params;
 		}
 	}
@@ -150,14 +147,15 @@ export default class FaasMallPay {
 	async walletPay() {
 		let that = this;
 		let result = await this.prepay();
-		result.code === 1 && that.payResult('success')
+		debugger
+		result.code === 0 && that.payResult('success')
 	}
 
 	// 支付宝复制链接支付
 	async copyPayLink() {
 		let that = this;
 		let result = await this.prepay();
-		if (result.code === 1) {
+		if (result.code === 0) {
 			//引入showModal 点击确认 复制链接；
 			uni.showModal({
 				title: '支付宝支付',
@@ -181,7 +179,7 @@ export default class FaasMallPay {
 	async goToPayLink() {
 		let that = this;
 		let result = await this.prepay();
-		if (result.code === 1) {
+		if (result.code === 0) {
 			window.location = result.data.pay_data;
 		}
 	}
@@ -190,7 +188,7 @@ export default class FaasMallPay {
 	async aliPay() {
 		let that = this;
 		let result = await this.prepay();
-		if (result.code === 1) {
+		if (result.code === 0) {
 			uni.requestPayment({
 				provider: 'alipay',
 				orderInfo: result.data.pay_data, //支付宝订单数据
@@ -209,7 +207,7 @@ export default class FaasMallPay {
 	async wechatPay() {
 		let that = this;
 		let result = await this.prepay();
-		if (result.code === 1) {
+		if (result.code === 0) {
 			uni.requestPayment({
 				provider: 'wxpay',
 				orderInfo: JSON.parse(result.data.pay_data), //微信订单数据(官方说是string。实测为object)
@@ -228,10 +226,13 @@ export default class FaasMallPay {
 	// 支付结果跳转,success:成功，fail:失败
 	payResult(resultType) {
 		const that = this;
+		console.info('订单信息：' + that.order);
+		debugger
 		$Router.replace({
 			path: '/pages/common/pay/result',
 			query: {
 				orderId: that.order.id,
+				orderSn: that.order.orderSn,
 				type: that.payment, //重新支付的时候使用
 				payState: resultType
 			}

@@ -1,10 +1,12 @@
 import $platform from "@/faasmall/utils/platform";
 import store from "@/faasmall/store";
-
+import {cacheKey} from "@/faasmall/common/constant";
+import setting from '@/faasmall/common/config.js';
+import {maProgramLogin, maProgramLoginInfo, maProgramOperate, openPlatformOperate} from "@/faasmall/api/login";
 export default {
-	eventMap(event) {
+	eventMap(action) {
 		let map = "";
-		switch (event) {
+		switch (action) {
 			case "login":
 				map = "登录中...";
 				break;
@@ -21,11 +23,13 @@ export default {
 	async login() {
 		let token = "";
 		// #ifdef MP-WEIXIN
-		token = await this.wxMiniProgramOauth("login");
+		token = await this.wxMaProgramOauth("login");
 		return token;
 		// #endif
 		// #ifdef H5
-		this.wxOfficialAccountOauth("login");
+		if($platform.get() === "wx_mp_account"){
+			this.wxMpAccountLogin("login");
+		}
 		// #endif
 		// #ifdef APP-PLUS
 		token = await this.wxOpenPlatformOauth("login");
@@ -35,11 +39,11 @@ export default {
 	async refresh() {
 		let token = "";
 		// #ifdef MP-WEIXIN
-		token = await this.wxMiniProgramOauth("refresh");
+		token = await this.wxMaProgramOauth("refresh");
 		return token;
 		// #endif
 		// #ifdef H5
-		this.wxOfficialAccountOauth("refresh");
+		this.wxMpAccountLogin("refresh");
 		// #endif
 		// #ifdef APP-PLUS
 		token = await this.wxOpenPlatformOauth("refresh");
@@ -49,11 +53,11 @@ export default {
 	async bind() {
 		let token = "";
 		// #ifdef MP-WEIXIN
-		token = await this.wxMiniProgramOauth("bind");
+		token = await this.wxMaProgramOauth("bind");
 		return token;
 		// #endif
 		// #ifdef H5
-		this.wxOfficialAccountOauth("bind");
+		this.wxMpAccountLogin("bind");
 		// #endif
 		// #ifdef APP-PLUS
 		token = await this.wxOpenPlatformOauth("bind");
@@ -62,9 +66,9 @@ export default {
 	},
 
 	// #ifdef H5
-	// 微信公众号网页登录&刷新头像昵称&绑定
-	wxOfficialAccountOauth(event = "login") {
-		if ($platform.get() !== "wxOfficialAccount") {
+	// 微信公众号网页 登陆/绑定/刷新
+	wxMpAccountLogin(action = "login") {
+		if ($platform.get() !== "wx_mp_account") {
 			uni.showToast({
 				title: "请在微信浏览器中打开",
 				icon: "none"
@@ -72,31 +76,32 @@ export default {
 			throw false;
 		}
 		let host = $platform.host();
-		let payloadObject = {
+		let paramObject = {
+			lesseeId: setting.LESSEE_ID,
+			appId: setting.APP_ID,
+			platform: $platform.get(),
 			host: host,
-			event,
-			token: (event !== "login" && store.getters.isLogin) ? uni.getStorageSync("token") : ""
+			action: action,
+			sessionId: (action !== "login" && store.getters.isLogin) ? uni.getStorageSync(cacheKey.TOKEN) : ""
 		};
-		let payload = encodeURIComponent(JSON.stringify(payloadObject));
-		let redirect_uri = encodeURIComponent(`${API_URL}user/wxOfficialAccountOauth?payload=${payload}`);
-		let oauthUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + store.getters.initWechat.appid +
+		let param = encodeURIComponent(JSON.stringify(paramObject));
+		let domain = setting.getApiUrl('/oauth/login/mp-account-operate');
+		debugger
+		let redirect_uri = encodeURIComponent(`${domain}?param=${param}`);
+		let oauthUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + store.getters.wechatData.mpAppId +
 			`&redirect_uri=${redirect_uri}&response_type=code&scope=snsapi_userinfo&state=1`;
-		uni.setStorageSync("lastPage", window.location.href);
+		console.info('公众号登陆跳转到：' + window.location.href);
+		console.info(store.getters.wechatData);
+		console.info(store.getters.shopData?.domain);
+		uni.setStorageSync("lastPage", store.getters.shopData?.domain + '/pages/tabbar/main/index');
 		window.location = oauthUrl;
-	},
-
-	// 微信公众号网页静默登录:临时登录获取OpenId 不入库不绑定用户
-	wxOfficialAccountBaseLogin() {
-		let state = encodeURIComponent(window.location.href);
-		window.location = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + store.getters.initWechat.appid +
-			`&redirect_uri=${API_URL}user/wxOfficialAccountBaseLogin&response_type=code&scope=snsapi_base&state=${state}`;
-		throw "stop";
 	},
 	// #endif
 
 	// #ifdef APP-PLUS
-	// 微信开放平台登录
-	wxOpenPlatformOauth(event = "login") {
+	// 微信开放平台 登陆/绑定/刷新
+	wxOpenPlatformOauth(action = "login") {
+		debugger
 		let that = this;
 		return new Promise((resolve, reject) => {
 			uni.login({
@@ -104,11 +109,11 @@ export default {
 				success: function(loginRes) {
 					if (loginRes.errMsg === "login:ok") {
 						let authResult = loginRes.authResult;
-						api("user.wxOpenPlatformOauth", {
-							authResult,
-							event
-						}, that.eventMap(event)).then(res => {
-							if (res.code === 1) {
+						// authResult 包含access_token，expires_in，openid，unionid等信息
+						//这里只需要把这些数据传递给后台，让后台去请求微信的接口拿到用户信息就可以了，
+						let token = (action !== "login" && store.getters.isLogin) ? uni.getStorageSync(cacheKey.TOKEN) : "";
+						openPlatformOperate({action:action,sessionId:token,authData:authResult}).then(res => {
+							if (res.code === 0) {
 								resolve(res.data.token);
 							} else {
 								resolve(false);
@@ -121,9 +126,7 @@ export default {
 						title: "登录失败,请稍后再试"
 					});
 					resolve(false);
-					api("common.debug", {
-						info: res
-					});
+					console.info(res);
 				},
 				complete: function(res) {}
 			});
@@ -132,29 +135,28 @@ export default {
 	// #endif
 
 	// #ifdef MP-WEIXIN
-	// 微信小程序静默登录
-	async getWxMiniProgramSessionKey(autoLogin = true) {
+	// 微信小程序静默登录,获取会话ID
+	async getWxMiniProgramSessionId(autoLogin = true) {
 		let sessionStatus = false;
-		let session_key = "";
 		return new Promise((resolve, reject) => {
 			uni.checkSession({
 				success(res) {
 					if (res.errMsg === "checkSession:ok") sessionStatus = true;
 				},
 				complete() {
-					if (uni.getStorageSync("session_key") && sessionStatus && !autoLogin) {
-						resolve(uni.getStorageSync("session_key"));
+					if (uni.getStorageSync(cacheKey.SESSION_ID) && sessionStatus && !autoLogin) {
+						resolve(uni.getStorageSync(cacheKey.SESSION_ID));
 					} else {
 						uni.login({
 							success: function(info) {
 								let code = info.code;
-								api("user.getWxMiniProgramSessionKey", {
+								//微信小程序静默授权登陆
+								maProgramLoginInfo( {
 									code: code,
 									autoLogin: autoLogin
 								}).then(res => {
-									if (res.code === 1) {
-										uni.setStorageSync("session_key", res
-											.data.session_key);
+									if (res.code === 0) {
+										uni.setStorageSync(cacheKey.SESSION_ID, res.data.sessionId);
 										if (autoLogin) {
 											if (res.data.token) {
 												resolve(res.data.token);
@@ -162,7 +164,7 @@ export default {
 												resolve(false);
 											}
 										}
-										resolve(res.data.session_key);
+										resolve(res.data.sessionId);
 									} else {
 										reject(res.msg);
 									}
@@ -175,31 +177,33 @@ export default {
 		});
 	},
 
-	// 微信小程序获取用户信息登录
-	wxMiniProgramOauth(event = "login") {
+	// 微信小程序获取用户信息 登陆/绑定/刷新
+	wxMaProgramOauth(action = "login") {
 		let that = this;
-		let session_key = uni.getStorageSync("session_key");
+		let sessionId = uni.getStorageSync(cacheKey.SESSION_ID);
 		uni.showLoading({
-			title: that.eventMap(event)
+			title: that.eventMap(action)
 		});
 		return new Promise((resolve, reject) => {
 			uni.getUserProfile({ // 必须手动确认触发
 				desc: "完善会员资料", // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
 				success: res => {
 					if (res.errMsg === "getUserProfile:ok") {
-						api("user.wxMiniProgramOauth", {
-							event,
-							session_key,
+						debugger
+						maProgramOperate({
+							action:action,
+							sessionId:sessionId,
 							encryptedData: res.encryptedData,
 							iv: res.iv,
 							signature: res.signature,
 						}).then(res => {
+							debugger
 							console.log(res)
-							if (res.code === 1) {
+							if (res.code ===0) {
 								resolve(res.data.token);
 							} else {
-								uni.removeStorageSync("session_key");
-								that.getWxMiniProgramSessionKey(false);
+								uni.removeStorageSync(cacheKey.SESSION_ID);
+								that.getWxMiniProgramSessionId(false);
 								resolve(false);
 							}
 						});

@@ -1,22 +1,22 @@
 <template>
   <view class="fixed-wraper">
-    <faasmall-navbar title="我的优惠卷" :is-back="true" class="fixed-head"></faasmall-navbar>
     <view class="fixed-content">
       <view>
         <swiper class="swiper" :current="pageCurrent" :style="{'height':scrollHeight + 'px'}">
+          <!--  我的优惠卷  -->
           <swiper-item class="swiper-item" @touchmove.stop>
             <view class="tabs-swiper-wrap">
               <view class="border-bottom head-box">
-                <u-tabs-swiper ref="uTabs" :list="tabList" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
+                <u-tabs-swiper ref="uTabs" active-color="#FF0505" :list="tabList" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
               </view>
               <swiper :current="tabCurrentIndex" duration="300" @change="changeSwiper" :style="{'height':(scrollHeight-60) + 'px'}">
                 <swiper-item class="tab-content" v-for="(tabItem,tabIndex) in tabData" :key="tabIndex">
                   <scroll-view class="list-scroll-content" scroll-y @scrolltolower="loadMoreMemberCoupon" :style="{'height':(scrollHeight-60) + 'px'}">
                     <!-- 空白页 -->
                     <u-empty v-if="tabItem.empty === true && tabItem.couponList.length === 0" text="暂无数据" mode="list"></u-empty>
-                    <!-- 订单列表 -->
+                    <!-- 优惠卷列表 -->
                     <view class="content_box" style="padding: 20rpx">
-                      <faasmall-coupon-list v-for="(item, index) in tabItem.couponList" :key="'one' + index" :item="item" theme="#ff0000" />
+                      <faasmall-coupon-list v-for="(item, index) in tabItem.couponList" :key="index" :item="item" theme="#ff0000" />
                     </view>
                     <u-loadmore :status="tabItem.loadingType" :icon-type="iconType" :load-text="loadText" @loadmore="loadMoreMemberCoupon"/>
                   </scroll-view>
@@ -24,13 +24,14 @@
               </swiper>
             </view>
           </swiper-item>
+          <!--  优惠卷中心  -->
           <swiper-item class="swiper-item" @touchmove.stop >
             <view class="bottom-footer">
               <scroll-view scroll-y :style="{'height':(scrollHeight-20)+ 'px'}" @scrolltolower="loadMoreCouponCenter">
                 <!-- 空白页 -->
                 <u-empty v-if="couponCenterData.empty === true && couponCenterData.couponList.length === 0" text="暂无数据" mode="list"></u-empty>
                 <view class="content_box disss">
-                  <faasmall-coupon-list v-for="(item, index) in couponCenterData.couponList" :key="'one' + index" :item="item" theme="#ff0000" source="member_center"/>
+                  <faasmall-coupon-list v-for="(item, index) in couponCenterData.couponList" :key="index" :item="item" theme="#ff0000" source="member_center"/>
                 </view>
                 <u-loadmore :status="couponCenterData.loadingType" :icon-type="iconType" :load-text="loadText" @loadmore="loadMoreCouponCenter"/>
               </scroll-view>
@@ -42,11 +43,11 @@
     <view class="fixed-footer" style="background: #FFFFFF;padding: 20rpx 120rpx">
       <view class="row-center-between navbar-botton">
         <view class="flex flex-column justify-between align-center"  :class="[pageCurrent === 0 ? 'selected' : '']" @tap="couponPageSelect(0)">
-          <view><u-image src="http://dummyimage.com/375x180"  width="60rpx" height="60rpx"></u-image></view>
+          <view><text class="iconfont icon-youhuiquan"></text></view>
           <view><text>我的优惠卷</text></view>
         </view>
         <view class="flex flex-column justify-between align-center" :class="[pageCurrent === 1 ? 'selected' : '']" @tap="couponPageSelect(1)">
-          <view><u-image src="http://dummyimage.com/375x180"  width="60rpx" height="60rpx"></u-image></view>
+          <view><text class="iconfont icon-youhui"></text></view>
           <view><text>优惠卷中心</text></view>
         </view>
       </view>
@@ -93,7 +94,8 @@ export default {
         page: 1,
         total: 0,
         empty:false,
-        couponList: []
+        couponList: [],
+        tempList:[],
       },{
         status: '2',
         text: '已使用',
@@ -101,7 +103,8 @@ export default {
         page: 1,
         total: 0,
         empty:false,
-        couponList: []
+        couponList: [],
+        tempList:[],
       },{
         status: '3',
         text: '已失效',
@@ -109,7 +112,8 @@ export default {
         page: 1,
         total: 0,
         empty:false,
-        couponList: []
+        couponList: [],
+        tempList:[],
       }],
       //优惠卷中心
       couponCenterData:{
@@ -117,7 +121,8 @@ export default {
         page: 1,
         total: 0,
         empty:false,
-        couponList: []
+        couponList: [],
+        tempList:[],
       }
     };
   },
@@ -160,16 +165,26 @@ export default {
         return;
       }
       navItem.loadingType = 'loading';
-
       getMemeberCouponPage({'pageNo':page,'pageSize':10,'platform':this.platform,'status':status}).then((res)=>{
         if(res.code === 0){
+          debugger
           let list = res.data.list;
           list.forEach(item => {
-            navItem.couponList.push(item);
+            if(item.expireType === 2){
+              navItem.tempList.push(item);
+              var currentTime = new Date();
+              var endTime= item.endTime.replace("-","/");//替换字符，变成标准格式
+              endTime= new Date(Date.parse(endTime));
+              if(currentTime < endTime){
+                navItem.couponList.push(item);
+              }
+            }else {
+              navItem.couponList.push(item);
+            }
           });
           navItem.total = res.data.total;
-
-          if (res.data.list.length === navItem.couponList.length) {
+          debugger
+          if (res.data.total === navItem.tempList.length) {
             //判断是否还有数据， 有改为 more， 没有改为noMore
             navItem.loadingType = 'nomore';
           } else {
@@ -190,6 +205,7 @@ export default {
     },
     loadCouponCenter(){
       let page = this.couponCenterData.page;
+      debugger
       if (this.couponCenterData.empty === true) {
         return;
       }
@@ -203,20 +219,34 @@ export default {
       getCouponPage({'pageNo':page,'pageSize':10}).then((res)=>{
           if(res.code === 0){
             let list = res.data.list;
+            debugger
+            if(res.data.list === 0){
+              this.$set(this.couponCenterData, 'empty', true);
+            }
+            debugger
             list.forEach(item => {
-              this.couponCenterData.couponList.push(item);
+              this.couponCenterData.tempList.push(item);
+              if(item.expireType === 2){
+                var currentTime = new Date();
+                var endTime= item.endTime.replace("-","/");//替换字符，变成标准格式
+                endTime= new Date(Date.parse(endTime));
+                if(currentTime < endTime){
+                  this.couponCenterData.couponList.push(item);
+                }
+              }else {
+                this.couponCenterData.couponList.push(item);
+              }
             });
             this.couponCenterData.total = res.data.total;
-            console.log(this.couponCenterData.couponList.length)
-
-            if (res.data.list.length === this.couponCenterData.couponList.length) {
+            console.log(this.couponCenterData.tempList.length)
+            debugger
+            if (res.data.total === this.couponCenterData.tempList.length) {
               //判断是否还有数据， 有改为 more， 没有改为noMore
               this.couponCenterData.loadingType = 'nomore';
             } else {
               //判断是否还有数据， 有改为 more， 没有改为noMore
               this.couponCenterData.loadingType = 'loadmore';
             }
-            this.$set(this.couponCenterData, 'empty', true);
           } else {
             uni.showToast({
               title: res.msg,

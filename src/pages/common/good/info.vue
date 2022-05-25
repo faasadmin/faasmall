@@ -1,6 +1,5 @@
 <template>
   <view>
-    <faasmall-navbar title="商品详情" :is-back="true"></faasmall-navbar>
     <view class="productDetail">
       <!-- 轮播图 -->
       <swiper-list :bannerList="goodInfo.carousel" :height="400"></swiper-list>
@@ -16,35 +15,29 @@
               <price-format :price="goodInfo.price"></price-format>
             </view>
           </view>
-          <image class="icon-share" src="/static/img/good/icon_share.png" @tap="showShareBtn=true"></image>
+<!--          <image class="icon-share" src="/static/img/good/icon_share.png" @tap="showShareBtn=true"></image>-->
         </view>
         <view class="name">{{ goodInfo.name }}</view>
         <view class="name">{{ goodInfo.subTitle }}</view>
         <view class="flex justify-between align-center xl mt-1">
           <view class="row-center-center">
-            <text class="iconfont icon-kucun icon-xl"></text>
-            <text>库存: {{goodInfo.stocks}}件</text>
+            <text class="iconfont icon-kucun icon-md"></text>
+            <text>库存: {{goodInfo.stocks || 0}}件</text>
           </view>
           <view class="row-center-center">
-            <text class="iconfont icon-kehuxiaoliang3x icon-xl"></text>
-            <text>销量: {{goodInfo.sales}}件</text>
+            <text class="iconfont icon-kehuxiaoliang3x icon-md"></text>
+            <text>销量: {{goodInfo.sales || 0}}件</text>
           </view>
           <view class="row-center-center">
-            <text class="iconfont icon-jilu icon-xl"></text>
-            <text>浏览: {{goodInfo.views}}次</text>
+            <text class="iconfont icon-jilu icon-md"></text>
+            <text>浏览: {{goodInfo.views || 0}}次</text>
           </view>
         </view>
       </view>
-
-      <!--优惠卷-->
-<!--      <grant-coupon :grantCouponList="goodInfo.grantCoupon"/>-->
-
+      <!--商品可用优惠卷-->
+      <grant-coupon v-if="goodInfo.grantCoupon.length" :grantCouponList="goodInfo.grantCoupon"/>
       <!-- 活动/促销 -->
-<!--
-      <good-promotion :giftCouponList="goodInfo.giftCoupon" :giftPointsStatus="goodInfo.giftPointsStatus" :giftPoints="goodInfo.giftPoints" :giftBalanceStatus="goodInfo.giftBalanceStatus" :giftBalance="goodInfo.giftBalance"/>
--->
-
-
+      <good-promotion v-if="goodInfo.giftCoupon.length" :giftCouponList="goodInfo.giftCoupon" :giftPointsStatus="goodInfo.giftPointsStatus" :giftPoints="goodInfo.giftPoints" :giftBalanceStatus="goodInfo.giftBalanceStatus" :giftBalance="goodInfo.giftBalance"/>
       <!-- 规格 -->
       <view class="mt-1">
         <!-- 规格 -->
@@ -91,28 +84,8 @@
         </view>
       </view>
 
-      <!-- 商品评价只展示5个 -->
-      <view class="comment-wrapper mt-1">
-        <view class="comment-title-wrapper">
-          <text class="comment-num">商品评价({{goodInfo.orderEvaluateData.length}})</text>
-          <text class="comment-more">查看全部 <text class="iconfont icon-page-next1"></text></text>
-        </view>
-        <scroll-view v-if="goodInfo.orderEvaluateData.length > 0" class="comment-content-wrapper" scroll-x="true">
-          <view class="comment-item" v-for="(item, index) in goodInfo.orderEvaluateData" :key="index">
-            <view class="comment-item-left">
-              <view class="head-content-wrapper">
-                <view class="head-icon-content"><image class="head-icon" lazy-load="true" :src="item.memberAvatar"></image></view>
-                <view class="head-name">{{ item.memberNickName }}</view>
-              </view>
-              <view class="comment-content">{{ item.content }}</view>
-            </view>
-            <view class="comment-item-right"><image class="product-img" lazy-load="true" :src="item.images"></image></view>
-          </view>
-        </scroll-view>
-        <view v-else>
-          <view class="row-center-center"><text>暂无评论</text></view>
-        </view>
-      </view>
+      <!--商品评价 -->
+      <good-evaluation :goods-id="goodId"></good-evaluation>
 
       <!--商品详情  -->
       <view class="detail-wrapper">
@@ -146,19 +119,20 @@
             <view class="footer-icon"><text class="iconfont icon-shouye"></text></view>
             <text class="footer-text">首页</text>
           </view>
-          <view class="footer-icon-item">
-            <view class="footer-icon"><text class="iconfont icon-kefu"></text></view>
-            <text class="footer-text">客服</text>
-          </view>
           <view class="footer-icon-item" @tap="toCollect">
             <view class="footer-icon" v-if="collectFlag"><text class="iconfont icon-shoucang1"></text></view>
             <view class="footer-icon" v-else><text class="iconfont icon-shoucang"></text></view>
             <text class="footer-text">收藏</text>
           </view>
+          <view class="footer-icon-item" style="position: relative" @tap="goCart">
+            <view class="fm-badge" v-if="cartNum >0 " :style="[baddgeStyle]">{{ cartNum }} </view>
+            <view class="footer-icon"><text class="iconfont icon-gouwuche"></text></view>
+            <text class="footer-text">购物车</text>
+          </view>
         </view>
         <view class="footer-btn-wrapper">
-          <button class="footer-btn add-cart" @click="showSku = true">加入购物车</button>
-          <button class="footer-btn buy" @click="showSku = true">立即购买</button>
+          <u-button shape="square" type="warning" class="footer-btn add-cart" @click="showSku = true">加入购物车</u-button>
+          <u-button shape="square" type="error" class="footer-btn buy" @click="showSku = true">立即购买</u-button>
         </view>
       </view>
 
@@ -181,6 +155,8 @@
           :mask-close-able="form.maskCloseAble"
           :hide-stock="form.hideStock"
           :theme="form.theme"
+          :useCache="false"
+          :goods-id="goodId"
           :default-select="form.defaultSelect"
           goods-thumb-name="thumbnail"
           sku-arr-name="skus"
@@ -209,11 +185,13 @@ import goodPromotion from './components/good-promotion';
 import grantCoupon from './components/grant-coupon';
 import goodService from './components/good-service';
 import goodCoupon from './components/good-coupon';
+import goodEvaluation from './components/good-evaluation';
 import priceFormat from '../../../components/price-format/price-format';
 import {getGoodInfo} from "@/faasmall/api/good";
 import graceRichText  from '@/faasmall/utils/rechText'
 import {addCart} from "@/faasmall/api/cart";
 import { mapMutations, mapActions, mapState, mapGetters } from 'vuex';
+var that;
 export default {
   components: {
     swiperList,
@@ -224,21 +202,35 @@ export default {
     goodCoupon,
     goodPromotion,
     grantCoupon,
+    goodEvaluation,
+  },
+  mounted() {
+    this.getCartNumber().then((res)=>{
+      this.cartNum = res;
+    })
   },
   data() {
     return {
+      cartNum:0,
       goodId:'',
       serviceShow:false,
       //是否收藏
       collectFlag:false,
       goodInfo: {
+        stocks:0,//库存
+        sales:0,//销量
+        views:0,//浏览
         servicesData:[],
         skuData:[], //sku
         spuData:[], //spu
         orderEvaluateData:[], //评价
         parameter:[],
         //价格
-        price:0
+        price:0,
+        //商品可用优惠卷
+        grantCoupon:[],
+        //购买商品赠送优惠卷
+        giftCoupon:[],
       },
       form:{
         skuMode:1,
@@ -265,16 +257,54 @@ export default {
     };
   },
   computed: {
-
+    ...mapGetters(['isLogin','memberInfo','shopData']),
+    baddgeStyle: function () {
+      let style = {};
+      if (this.cartNum.length === 1) {
+        style.borderRadius = '50%';
+        style.width = '30rpx';
+        style.height = '30rpx';
+        style.textAlign = 'center';
+        style.lineHeight = '24rpx';
+      } else {
+        style.borderRadius = '15rpx';
+        style.padding = '5rpx 7rpx';
+      }
+      return style;
+    }
+  },
+  onShow(){
+    this.reset();
+    this.init();
   },
   onLoad(options) {
+    that = this;
     this.goodId = options.id;
+    debugger
+    //this.$refs.skuPopup.init();
     this.init();
   },
   methods: {
-    ...mapActions(['addFootPrint','addCollect','collectExist']),
+    ...mapActions(['addFootPrint','addCollect','collectExist','getCartNumber']),
+    reset(){
+      this.goodInfo = {
+          servicesData:[],
+          skuData:[],
+          spuData:[],
+          orderEvaluateData:[],
+          parameter:[],
+          price:0,
+          grantCoupon:[],
+          giftCoupon:[]
+      }
+    },
     toFootPrint(){
       this.addFootPrint({goodId:this.goodId});
+    },
+    goCart(){
+      uni.switchTab({
+        url: '/pages/tabbar/cart/index'
+      });
     },
     toCollect(){
       this.addCollect({goodId:this.goodId}).then((res)=>{
@@ -313,11 +343,12 @@ export default {
 
     },
     findGoodsInfo(){
-      var that = this;
+      console.info(that.goodId);
       return new Promise(function (resolve, reject) {
         getGoodInfo({id:that.goodId}).then((res)=>{
           that.goodInfo = res.data;
           that.goodInfo.content = graceRichText.format(that.goodInfo.content);
+          console.info(that.goodInfo);
           resolve(that.goodInfo);
         }).catch(error=>{
           console.error(error)
@@ -339,8 +370,10 @@ export default {
     },
     closeSkuPopup(){
       console.log("监听 - 关闭sku组件");
+      //this.$refs.skuPopup.init();
     },
     handleSku(selectSku){
+      debugger
       selectSku.name = this.goodInfo.name;
       selectSku.goodId = this.goodInfo.id;
       selectSku.number = selectSku.buy_num;
@@ -399,16 +432,15 @@ export default {
       this.handleSku(selectSku);
       var confirmGoodList = [];
       //uni.navigateTo({
-      //  url: 'pages/common/order/confirm?goodInfo=' + encodeURIComponent(JSON.stringify(selectSku))
+      //  url: 'pages/common/order/submit?goodInfo=' + encodeURIComponent(JSON.stringify(selectSku))
       //});
-
       confirmGoodList.push({
         source:'good',
         goodId: this.goodInfo.id,
         goodSkuId: selectSku.goodSkuId,
         number: selectSku.number
       });
-      this.jump('/pages/common/order/confirm', {goodList: confirmGoodList,source:'goodInfo',type:1});
+      this.jump('/pages/common/order/submit', {goodList: confirmGoodList,source:'goodInfo',type:1});
     },
     // 路由跳转
     jump(path, parmas) {
@@ -479,6 +511,15 @@ export default {
 </script>
 
 <style lang="scss">
+.fm-badge {
+  position: absolute;
+  //font-size: 4rpx;
+  line-height: 10px;
+  color: #ffffff;
+  top: -10rpx;
+  right: -10rpx;
+  background-color: #fa5151;
+}
 page {
   background-color: #f4f4f4;
 }
@@ -489,14 +530,14 @@ page {
   align-items: baseline;
 }
 .productDetail {
-  position: fixed;
+  //position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 666;
   overflow: scroll;
-  margin-top: 88rpx;
+  //margin-top: 88rpx;
   padding-bottom: 120rpx;
   .title-wrapper {
     padding: 40rpx 25rpx;
@@ -512,7 +553,6 @@ page {
       }
     }
     .name {
-      font-size: 32rpx;
       font-weight: bold;
       color: #333333;
       line-height: 40rpx;
@@ -577,117 +617,9 @@ page {
     }
   }
 
-  .comment-wrapper {
-    padding: 36rpx 26rpx 26rpx;
-    background-color: #fff;
-    box-sizing: border-box;
-    margin-bottom: 20rpx;
 
-    .comment-title-wrapper {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      font-size: 26rpx;
-      color: #333333;
-      margin-bottom: 33rpx;
-
-      .comment-num {
-        font-weight: bold;
-      }
-
-      .comment-more {
-        font-weight: 500;
-      }
-    }
-
-    .comment-content-wrapper {
-      white-space: nowrap;
-
-      .comment-item {
-        display: inline-flex;
-        width: 600rpx;
-        height: 180rpx;
-        flex-direction: row;
-        margin-right: 20rpx;
-        background-color: #f4f4f4;
-        border-radius: 10rpx;
-        overflow: hidden;
-
-        :last-child {
-          margin-right: 0;
-        }
-
-        .comment-item-left {
-          flex: 1;
-          display: flex;
-          height: 100%;
-          flex-direction: column;
-          padding: 27rpx 31rpx 26rpx 26rpx;
-          box-sizing: border-box;
-          overflow: hidden;
-
-          .head-content-wrapper {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            width: 100%;
-            height: 43rpx;
-            margin-bottom: 27rpx;
-
-            .head-icon-content {
-              width: 43rpx;
-              height: 43rpx;
-              border-radius: 50%;
-              overflow: hidden;
-              margin-right: 17rpx;
-
-              .head-icon {
-                width: 100%;
-                height: 100%;
-              }
-            }
-
-            .head-name {
-              flex: 1;
-              color: #999999;
-              font-size: 24rpx;
-              font-weight: 500;
-              line-height: 40rpx;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            }
-          }
-
-          .comment-content {
-            width: 100%;
-            height: 57rpx;
-            line-height: 28rpx;
-            font-size: 26rpx;
-            font-weight: 500;
-            white-space: normal;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 2;
-            overflow: hidden;
-          }
-        }
-
-        .comment-item-right {
-          height: 100%;
-          width: 180rpx;
-          flex: 0 0 180rpx;
-
-          .product-img {
-            width: 100%;
-            height: 100%;
-          }
-        }
-      }
-    }
-  }
   .detail-wrapper {
-    margin-bottom: 20rpx;
+    margin: 20rpx 0;
     background-color: #fff;
     .title {
       width: 100%;
@@ -732,12 +664,12 @@ page {
       justify-content: space-between;
 
       .footer-icon-item {
-        width: 70rpx;
+        //width: 80rpx;
         display: inline-flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-
+        text-align: center;
         .footer-icon {
           width: 40rpx;
           height: 40rpx;
@@ -1114,5 +1046,7 @@ page {
     }
   }
 }
-
+.iconfont{
+  //font-size: 40rpx !important;
+}
 </style>

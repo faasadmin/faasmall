@@ -1,6 +1,5 @@
 <template>
   <view>
-    <faasmall-navbar title="我的足迹" :is-back="true"></faasmall-navbar>
     <view>
       <scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="loadMoreFootPrint">
         <faasmall-good-list  :list="goodList" type="double" ></faasmall-good-list>

@@ -94,12 +94,23 @@ const mutations = {
 }
 
 const actions = {
+    //获取购物车数量
+    getCartNumber: function ({}) {
+        return new Promise((resolve, reject) => {
+            getCartList().then(res => {
+                if (res.code === 0) {
+                    resolve(res.data.length);
+                }
+            }).catch(e => {
+                reject(e)
+            })
+        });
+    },
     // 购物车数据（查）
     getCartList({
                     commit
                 }) {
         return new Promise((resolve, reject) => {
-
             getCartList().then(res => {
                 if (res.code === 0) {
                     let cartData = res.data;

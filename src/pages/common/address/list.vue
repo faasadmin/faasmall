@@ -1,6 +1,5 @@
 <template>
   <view>
-    <faasmall-navbar :is-back="true" title="地址管理"></faasmall-navbar>
     <view style="padding: 20rpx;">
       <view class="item mt-1" v-for="(item, index) in addressList" :key="item.id" style="border-radius: 10rpx;" @tap="selectAddress(item)">
         <view class="top" style="position: relative">
@@ -66,7 +65,6 @@ export default {
     },
     initData() {
       getAddressList().then((res)=>{
-
         this.addressList = res.data;
       }).catch(error=>{
         console.error(error);
@@ -78,7 +76,6 @@ export default {
       });
     },
     selectAddress(item){
-
       if(this.type==='select'){
         this.selectAddressId=item.id;
         uni.$emit('SHIPPING_ADDRESS', { addressData: JSON.stringify(item) });

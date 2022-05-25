@@ -1,17 +1,17 @@
 <template>
   <view>
-    <faasmall-navbar :title="title" :is-back="true"></faasmall-navbar>
+    <faasmall-navbar :backText="title"></faasmall-navbar>
     <view class="sort-bar-container row-center-between border-box">
       <block v-for="(items,index) in sortList" :key="index">
-        <view class="sort-container row-center-center" :class="sortCurrent==index?'sort-container-active':''" @click="selectSort(index)">
+        <view class="sort-container row-center-center" :class="sortCurrent===index?'sort-container-active':''" @click="selectSort(index)">
           <view class="sort-name">
             {{items.sortName}}
           </view>
           <view class="sort-box" v-if="index===3">
-            <image v-if="sortCurrent!==3 " src="/static/img/sort/sort.svg" mode=""></image>
+            <image v-if="sortCurrent!==3 " :src="$FILE_URL + '/file/img/sort/sort.svg'" mode=""></image>
             <block v-else>
-              <image v-if="priceUp" src="/static/img/sort/asce.svg" mode=""></image>
-              <image v-else src="/static/img/sort/desc.svg" mode=""></image>
+              <image v-if="priceUp" :src="$FILE_URL + '/file/img/sort/asce.svg'" mode=""></image>
+              <image v-else :src="$FILE_URL + '/file/img/sort/desc.svg'" mode=""></image>
             </block>
           </view>
         </view>

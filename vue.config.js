@@ -28,7 +28,8 @@ module.exports = {
 	configureWebpack: {
 		devServer: {
 			// 调试时允许内网穿透，让外网的人访问到本地调试的H5页面
-			disableHostCheck: true
+			disableHostCheck: true,
+			port: 8081,   //指定端口号以侦听
 		},
 		plugins: [
 			new webpack.DefinePlugin({

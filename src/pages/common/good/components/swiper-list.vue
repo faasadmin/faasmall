@@ -2,7 +2,7 @@
 	<view class="swiper-wrapper">
 		<swiper :style="{height:height+'rpx'}" class="swiper-box" :indicator-dots="showindicator" :indicator-active-color="indicatorActiveColor"
 		 :indicator-color="indicatorColor" :circular="circular">
-			<swiper-item class="swiper-item" v-for="item in bannerList" :key="'banner' + item">
+			<swiper-item class="swiper-item" v-for="item in bannerList" :key="item">
 				<image class="banner" :src="item" :style="{height:height+'rpx'}"></image>
 			</swiper-item>
 		</swiper>

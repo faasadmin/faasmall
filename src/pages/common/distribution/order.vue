@@ -1,18 +1,17 @@
 <template>
   <view>
-    <faasmall-navbar title="分销订单" :is-back="true"></faasmall-navbar>
     <view>
       <view class="border-bottom" style="background: #FFFFFF;padding: 20rpx;">
         <view style="height: 120rpx;width: 100%;display: flex;justify-content: center;align-items: center">
-          <u-button size="mini" @click="btnChange(1)">全部</u-button>
-          <u-button size="mini" @click="btnChange(2)">今日</u-button>
-          <u-button size="mini" @click="btnChange(3)">昨日</u-button>
-          <u-button size="mini" @click="btnChange(4)">本月</u-button>
+          <u-button :class="{ active: dateTypeIndex === 1 }" size="mini" @click="btnChange(1)">全部</u-button>
+          <u-button :class="{ active: dateTypeIndex === 2 }" size="mini" @click="btnChange(2)">今日</u-button>
+          <u-button :class="{ active: dateTypeIndex === 3 }" size="mini" @click="btnChange(3)">昨日</u-button>
+          <u-button :class="{ active: dateTypeIndex === 4 }" size="mini" @click="btnChange(4)">本月</u-button>
         </view>
         <view>
           <view @tap="showCalendar=!showCalendar">
-            <view v-if="calendarFlag">
-              {{beginTime}} -- {{endTime}}
+            <view v-if="calendarFlag" style="display: flex;align-items: center;justify-content: center;">
+              {{beginTime}} 至 {{endTime}}
             </view>
             <view v-else style="display: flex;justify-content: center;align-items: center;height: 60rpx;width: 100%;background: #F5F5F7">
               <view>自定义</view>
@@ -33,7 +32,7 @@
               </view>
               <view class="row-center-between">
                 <view><u-image :src="item.avatar"  width="80rpx" height="80rpx" shape="circle"></u-image></view>
-                <view><text>{{item.nickName}}</text></view>
+                <view><text>{{item.userName}}</text></view>
                 <view><text>{{item.levelName}}</text></view>
                 <view>
                   <u-button size="mini">待结算</u-button>
@@ -71,6 +70,7 @@ export default {
   name: "order",
   data(){
     return{
+      dateTypeIndex:0,
       mode: 'range',
       calendarFlag:false,
       showCalendar:false,
@@ -91,9 +91,14 @@ export default {
       orderlList: []
     }
   },
+  onLoad(){
+    this.loadData();
+  },
   methods:{
     // tabs通知swiper切换
     btnChange(index) {
+      debugger
+      this.dateTypeIndex = index;
       if(index === 1){
         this.beginTime = '';
         this.endTime = '';
@@ -103,12 +108,16 @@ export default {
       }else if(index === 3){
         var today = new Date();
         today.setDate(today.getDate() - 1);
-        var yesterday = today.format("yyyy-MM-dd");
-        this.beginTime =  yesterday + " 00:00:00";
-        this.endTime = yesterday + " 59:59:59";
+        debugger
+        var yesterday = format(today,"yyyy-MM-dd");
+        //this.beginTime =  yesterday + " 00:00:00";
+        this.beginTime =  yesterday;
+        this.endTime = yesterday;
       }else if(index === 4){
-        this.beginTime =  getMonthFirstDay() + " 00:00:00";
-        this.endTime = getMonthLastDay() + " 59:59:59";
+        //this.beginTime =  getMonthFirstDay() + " 00:00:00";
+        //this.endTime = getMonthLastDay() + " 59:59:59";
+        this.beginTime =  getMonthFirstDay();
+        this.endTime = getMonthLastDay();
       }
       this.orderlList = [];
       this.loadData('tabChange');
@@ -118,6 +127,7 @@ export default {
     },
     loadData(source){
       let page = this.page;
+      debugger
       if (source === 'tabChange' && this.empty === true) {
         //tab切换只有第一次需要加载数据
         return;
@@ -158,8 +168,10 @@ export default {
       })
     },
     calendarChange(data){
-      this.beginTime = data.startDate + " 00:00:00";
-      this.endTime = data.endDate + " 59:59:59";
+      // this.beginTime = data.startDate + " 00:00:00";
+      // this.endTime = data.endDate + " 59:59:59";
+      this.beginTime = data.startDate;
+      this.endTime = data.endDate;
       this.calendarFlag = true;
     }
   }
@@ -167,5 +179,11 @@ export default {
 </script>
 
 <style scoped>
-
+.active{
+  color: #fff;
+  background-color: #3c9cff;
+  border-color: #3c9cff;
+  border-width: 1px;
+  border-style: solid;
+}
 </style>

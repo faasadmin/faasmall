@@ -1,6 +1,5 @@
 <template>
   <view class="wrap">
-    <faasmall-navbar :is-back="true" :title="title"></faasmall-navbar>
     <u-toast ref="uToast" />
     <u-form :model="form" ref="uForm">
       <view class="top">
@@ -22,24 +21,17 @@
         </view>
       </view>
       <view class="bottom">
-        <view class="tag">
-          <view class="left">标签</view>
-          <view class="right">
-            <text class="tags">家</text>
-            <text class="tags">公司</text>
-            <text class="tags">学校</text>
-            <view class="tags plus"><u-icon size="22" name="plus"></u-icon></view>
-          </view>
-        </view>
         <view class="default">
           <view class="left">
             <view class="set">设置默认地址</view>
             <view class="tips">提醒：每次下单会默认推荐该地址</view>
           </view>
-          <view class="right"><switch color="red" inactive-value="0" v-model="form.check"/></view>
+          <view class="right">
+            <u-switch v-model="form.check"  activeColor="#FF0505" activeValue="1" inactiveValue="0"></u-switch>
+          </view>
         </view>
       </view>
-      <u-picker mode="region" ref="uPicker" v-model="show" @confirm="addressSelect" @cancel="addressCancel" />
+      <faasmall-select-address v-model="show" @select="selectArea" :select="form"></faasmall-select-address>
     </u-form>
     <view class="address-button-wrap">
       <u-button class="address-button-submit" type="primary" shape="circle" @click="submit">保存地址</u-button>
@@ -58,7 +50,6 @@ export default {
     return {
       show: false,
       region:'',
-      title:'',
       form: {
         id:'',
         consignee: '',
@@ -68,7 +59,9 @@ export default {
         city:'',
         province:'',
         isDefault:'',
-        tag:[]
+        tag:[],
+        check: false,
+        status:0,
       },
       rules: {
         consignee: [
@@ -103,42 +96,45 @@ export default {
   },
   onLoad(){
     this.form.id = this.$Route.query.id;
-    this.title = this.form.id ? '编辑收货地址' : '新增收货地址';
     if(this.$isNotEmpty(this.form.id)){
       this.getAddressInfo();
     }
   },
   methods: {
     getAddressInfo(){
+      let _this = this;
       getAddress({id:this.form.id}).then(res => {
         if (res.code === 0){
-          this.form.id = res.data.id;
-          this.form.consignee = res.data.consignee;
-          this.form.mobile = res.data.mobile;
-          this.form.address = res.data.address;
-          this.form.district = res.data.district;
-          this.form.city = res.data.city;
-          this.form.province = res.data.province;
+          _this.form.id = res.data.id;
+          _this.form.check = res.data.status === 1;
           debugger
-          this.region = res.data.province + res.data.city + res.data.district;
+          _this.form.consignee = res.data.consignee;
+          _this.form.mobile = res.data.mobile;
+          _this.form.address = res.data.address;
+          _this.form.district = res.data.district;
+          _this.form.city = res.data.city;
+          _this.form.province = res.data.province;
+          debugger
+          _this.region = res.data.province + res.data.city + res.data.district;
         }
       });
     },
     showRegionPicker() {
       this.show = true;
     },
-    addressSelect(e){
-      this.form.district = e.area.label;
-      this.form.city = e.city.label;
-      this.form.province = e.province.label;
-      this.region = e.province.label + e.city.label + e.area.label;
-      console.info('地址选择：' + e);
+    selectArea: function(area) {
+      debugger
+      this.form.province = area[0].name;
+      this.form.city = area[1].name;
+      this.form.district = area[2].name;
+      this.region = this.form.province + this.form.city + this.form.district;
     },
     addressCancel(e){
       console.info('地址取消：' + e);
     },
     submit(){
       if(this.$isNotEmpty(this.form.id)){
+        this.form.status = this.form.check ? 1:0;
         updateAddress(this.form).then(res => {
           if (res.code === 0) {
             this.$refs.uToast.show({
@@ -237,7 +233,7 @@ export default {
   .bottom {
     margin-top: 20rpx;
     padding: 40rpx;
-    padding-right: 0;
+    //padding-right: 0;
     background-color: #ffffff;
     font-size: 28rpx;
     .tag {

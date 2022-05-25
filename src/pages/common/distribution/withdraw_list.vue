@@ -1,10 +1,9 @@
 <template>
   <view>
-    <faasmall-navbar title="我的提现" :is-back="true"></faasmall-navbar>
     <view>
       <faasmall-month-select  :value="monthShow" @currentMonth="onSelectMonth"/>
       <view class="border-bottom">
-        <u-tabs-swiper ref="uTabs" :list="tabList" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
+        <u-tabs-swiper ref="uTabs" active-color="#FF0505" :list="tabList" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
       </view>
       <view style="height: 60rpx;width: 100%;display: flex;align-items: center;justify-content: center">
         <view @tap="monthShow = !monthShow">

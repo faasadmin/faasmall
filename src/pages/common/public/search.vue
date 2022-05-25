@@ -2,7 +2,6 @@
   <view class="goods-search">
     <view class="header-wrap">
       <u-sticky offset-top="0" h5-nav-height="0">
-        <faasmall-navbar :is-back="true" title="全部商品"></faasmall-navbar>
         <view style="padding: 20rpx 20rpx 20rpx 20rpx;border-bottom: 0.5px solid #e6e6e6;background: #FFFFFF">
           <u-search placeholder="请输入关键字" :show-action="false"  @change="onSearch" @search="onSearch" @clear="clearSearch" v-model="searchVal"  bg-color="#F4F4F4"></u-search>
         </view>

@@ -1,12 +1,12 @@
 <template>
   <view>
-    <faasmall-navbar title="我的积分" :is-back="true"></faasmall-navbar>
+    <u-toast ref="uToast"></u-toast>
     <view class="bg-wrap">
         <view class="p-2 row-center-between bg-container">
           <view>
-            <text class="iconfont icon-comment"></text>{{integral}}
+            <text class="iconfont icon-comment" style="color: #FFFFFF;font-size: 25px;"></text><text style="color: yellow;font-size: 25px;">{{integral}}</text>
           </view>
-          <view>
+          <view style="color: #FFFFFF" @tap="$Router.push('/pages/common/integral/exchange')">
             去使用
             <text class="iconfont icon-page-next1"></text>
           </view>
@@ -14,7 +14,7 @@
     </view>
     <view class="tabs-swiper-wrap">
       <view class="border-bottom">
-        <u-tabs-swiper ref="uTabs" :list="tabList" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
+        <u-tabs-swiper ref="uTabs" active-color="#FF0505" :list="tabList" :current="tabCurrentIndex" @change="tabsChange" :is-scroll="false" swiperWidth="750"></u-tabs-swiper>
       </view>
       <swiper :style="{'height': scrollHeight+'px'}" duration="300" :current="tabCurrentIndex"  style="height: 100%;"  @change="changeSwiper">
         <swiper-item  class="tab-content" v-for="(tabItem,tabIndex) in tabData" :key="tabIndex">
@@ -22,13 +22,14 @@
             <!-- 空白页 -->
             <u-empty v-if="tabItem.empty === true && tabItem.integralList.length === 0" text="暂无数据" mode="list"></u-empty>
             <view class="list-wrap">
-              <view class="list-item border-bottom" v-for="(item, index) in tabItem.integralList" :key="index" >
+              <view class="list-item border-bottom" v-for="(item, index) in tabItem.integralList" :key="index" style="height: 70px">
                  <view class="col" style="height: 100%!important;">
-                    <text>{{item.title}}</text>
-                    <text>{{item.createTime}}</text>
+                   <text>{{item.tagName}}</text>
+                   <text>{{item.createTime}}</text>
                  </view>
                  <view>
-                   <text>{{item.modeName}}{{item.extend}}</text>
+                   <text v-if="item.mode === 1" class="add">+{{item.integral}}</text>
+                   <text v-else class="minus">-{{ item.integral}}</text>
                  </view>
               </view>
             </view>
@@ -41,8 +42,8 @@
 </template>
 
 <script>
-import {getMemberInfo} from "@/faasmall/api/member";
-import {getIntegralPage} from "@/faasmall/api/integral";
+import {getMemberData, getMemberInfo} from "@/faasmall/api/member";
+import { getIntegralLogPage} from "@/faasmall/api/integral";
 import {isNotEmpty} from "@/faasmall/utils/faasmall";
 export default {
   name: "integral",
@@ -72,7 +73,7 @@ export default {
         }
       ],
       tabData: [{
-        status: '1',
+        status: '',
         text: '全部',
         loadingType: 'loadmore',
         page: 1,
@@ -80,7 +81,7 @@ export default {
         empty:false,
         integralList: []
       },{
-        status: '2',
+        mode: 1,
         text: '收入',
         loadingType: 'loadmore',
         page: 1,
@@ -88,7 +89,7 @@ export default {
         empty:false,
         integralList: []
       },{
-        status: '3',
+        mode: 2,
         text: '支出',
         loadingType: 'loadmore',
         page: 1,
@@ -98,6 +99,9 @@ export default {
       }],
       integral:0,
     }
+  },
+  filters:{
+
   },
   mounted(){
     let that = this;
@@ -118,11 +122,14 @@ export default {
   },
   methods:{
     init(){
-      getMemberInfo().then((res)=>{
+      getMemberData().then((res)=>{
         if(res.code === 0){
           this.integral = res.data.integral;
         }else {
-          this.messageerror(res.msg);
+          this.$refs.uToast.show({
+            title: res.msg,
+            type: 'error',
+          })
         }
       }).catch(err=>{
         console.error(err);
@@ -149,7 +156,7 @@ export default {
       //这里是将订单挂载到tab列表下
       let index = this.tabCurrentIndex;
       let navItem = this.tabData[index];
-      let status = navItem.status;
+      let mode = navItem.mode;
       let page = navItem.page;
       if (source === 'tabChange' && navItem.empty === true) {
         //tab切换只有第一次需要加载数据
@@ -163,9 +170,10 @@ export default {
         return;
       }
       navItem.loadingType = 'loading';
-      getIntegralPage({'pageNo':page,'pageSize':10,'status':status}).then((res)=>{
+      getIntegralLogPage({pageNo:page,pageSize:10,mode:mode}).then((res)=>{
         if(res.code === 0){
           let list = res.data.list;
+          debugger
           list.forEach(item => {
             navItem.integralList.push(item);
           });
@@ -194,10 +202,15 @@ export default {
 </script>
 
 <style lang="scss">
+.add {
+  color: #ff0013;
+}
+.minus {
+  color: #333333;
+}
 .bg-wrap{
-  background-image: url("http://dummyimage.com/375x100");
   width: 100%;
-  height: 200rpx;
+  background: #f09b07;
   .bg-container{
     height: 100%;
   }

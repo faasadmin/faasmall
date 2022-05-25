@@ -8,10 +8,10 @@ import {httpContentType} from "../common/constant";
 
 //预支付
 export const prepay = (data) => {
-    return http.postJson(setting.getApiUrl('/shop/pay/prepay'),data)
+    return http.postJson(setting.getApiUrl('/pay/prepay'),data,{auth:true})
 }
 
 //支付
 export const pay = (data) => {
-    return http.postJson(setting.getApiUrl('/shop/pay/pay'),data,{auth:true})
+    return http.postJson(setting.getApiUrl('/pay/pay'),data,{auth:true})
 }

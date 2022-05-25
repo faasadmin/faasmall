@@ -7,12 +7,12 @@
 	"transformPx": false,
 	"app-plus": { /* 5+App特有相关 */
 		"usingComponents": true,
-		"splashscreen": {
-			"alwaysShowBeforeRender": true,
-			"waiting": true,
-			"autoclose": true,
-			"delay": 0
-		},
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : true,
+            "waiting" : true,
+            "autoclose" : true,
+            "delay" : 200
+        },
 		"modules": { /* 模块配置 */
 
 		},
@@ -55,9 +55,13 @@
 	},
 	"mp-weixin": { /* 微信小程序特有相关 */
 		"appid": "",
-		"setting": {
-			"urlCheck": false
-		},
+        "setting" : {
+            "urlCheck" : false,
+            "es6" : true, //消除大多数样式警告
+            "minified" : true,
+            "postcss" : true,
+            "checkSiteMap" : false // 关闭页面索引检测
+        },
 		"usingComponents": true
 	},
 	"mp-alipay" : {

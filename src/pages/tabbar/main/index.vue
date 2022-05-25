@@ -1,100 +1,108 @@
 <template>
-  <view class="main-wrapper">
-    <!-- 空白页 -->
-    <!-- #ifdef APP-PLUS -->
-    <u-no-network @retry="init"></u-no-network>
-    <!-- #endif -->
-    <view v-if="isConnected" class="fixed-container" :style="'background:'+ (categoryCurrent>0?'#EE1B14':(scrollTop>30?'#EE1B14;':bannerColor) +';')">
-      <view class="search-container">
-        <view class="search" @tap="$Router.push({ path: '/pages/common/good/list', query: { search: '' } })">
-          <view class="p-2">
-            <view class="iconfont icon-search"></view>
-          </view>
-          <view class="search-tip">
-            <view>输入商品名或粘贴宝贝标题搜索</view>
-          </view>
-        </view>
-      </view>
-      <view class="category-navbar-container">
-        <scroll-view class="category-scroll" scroll-x scroll-with-animation @scroll="rowScroll" :scroll-into-view="nowcurrentid" :scroll-left="scrollleftnum">
-          <block v-for="(items,index) in categoryList" :key='index'>
-            <view class="category-container">
-              <view class="category-items" @click="cateChange(index)" :id="categoryCurrent==index?'category-items-active':''" :class="categoryCurrent==index?'category-items-active':''">
-                <view class="category-name">
-                  {{items.name}}
-                </view>
-                <view class="bottom-border"></view>
-              </view>
+  <view>
+    <view :style="[{'height':navHeight+'px'},{'background':(categoryCurrent>0?'#EE1B14':(scrollTop>30?'#EE1B14;':bannerColor) +';')}]"></view>
+    <view class="main-wrapper">
+      <!-- 空白页 -->
+      <!-- #ifdef APP-PLUS -->
+      <u-no-network @retry="init"></u-no-network>
+      <!-- #endif -->
+      <view v-if="isConnected" class="fixed-container" :style="[{'background':(categoryCurrent>0?'#EE1B14':(scrollTop>30?'#EE1B14;':bannerColor) +';')},{'top':navHeight+'px'}]" >
+        <view class="search-container">
+          <view class="search" @tap="$Router.push({ path: '/pages/common/good/list', query: { search: '' } })">
+            <view class="p-2">
+              <view class="iconfont icon-search"></view>
             </view>
-          </block>
-        </scroll-view>
-        <view class="category-icon-box" @click="showCateGoryModel()">
-          <view class="iconfont icon-fenlei1"></view>
-        </view>
-      </view>
-    </view>
-    <!-- 弹框 -->
-    <view class="category-model-wrapper" @touchmove.prevent>
-      <view class="shadow" :class="categoryModel?'show-shadow':''" @click="closeModel()"></view>
-      <view class="category-content" :style="'top:'+topHeight+'px'" :class="categoryModel?'show-category':''">
-        <view class="category-list-box" v-if="categoryModel">
-          <view class="category-name-bar">
-            <view>选择分类</view>
+            <view class="search-tip">
+              <view>输入商品名或粘贴宝贝标题搜索</view>
+            </view>
           </view>
-          <view class="list-container">
+        </view>
+        <view class="category-navbar-container">
+          <scroll-view class="category-scroll" scroll-x scroll-with-animation @scroll="rowScroll" :scroll-into-view="nowcurrentid" :scroll-left="scrollleftnum">
             <block v-for="(items,index) in categoryList" :key='index'>
-              <view class="cate-items"  v-if="index!=0" @click="changeCurrent(index,items.cid)">
-                <view class="img-box">
-                  <image :src="items.img" mode="aspectFill" :lazy-load="true"></image>
-                </view>
-                <view class="category-name">
-                  {{items.name}}
+              <view class="category-container">
+                <view class="category-items" @click="cateChange(index)" :id="categoryCurrent===index?'category-itefaas-active':''" :class="categoryCurrent==index?'category-itefaas-active':''">
+                  <view class="category-name">
+                    {{items.name}}
+                  </view>
+                  <view class="bottom-border"></view>
                 </view>
               </view>
             </block>
+          </scroll-view>
+          <view class="category-icon-box" @click="showCateGoryModel()">
+            <view class="iconfont icon-fenlei1"></view>
           </view>
         </view>
       </view>
-    </view>
-    <view class="body-container">
-      <swiper class="page-swiper" :disable-touch='canswiper' duration="200" :current='categoryCurrent' @change='changeCatepage' @transition='swiperTransition' @animationfinish='stopSwiper'>
-        <swiper-item v-for="(items,index) in categoryList" :key='index' :current-item-id='items.cid'>
-          <view v-if='index===0'>
-            <index ref='indexPage' :refresher='refresher' :fixedClass='fixedClass' @scrolltoTop='scrollToTop' @scrolltoview='scrollToView'
-                       @pushfixed='getFixed' @scrollNum='getScroll' :topHeight='topHeight' @passColor='getColor'></index>
+      <!-- 弹框 -->
+      <view class="category-model-wrapper" @touchmove.prevent>
+        <view class="shadow" :class="categoryModel?'show-shadow':''" @click="closeModel()"></view>
+        <view class="category-content" :style="'top:'+topHeight+'px'" :class="categoryModel?'show-category':''">
+          <view class="category-list-box" v-if="categoryModel">
+            <view class="category-name-bar">
+              <view>选择分类</view>
+            </view>
+            <view class="list-container">
+              <block v-for="(items,index) in categoryList" :key='index'>
+                <view class="cate-items"  v-if="index!=0" @click="changeCurrent(index,items.cid)">
+                  <view class="img-box">
+                    <image :src="items.img" mode="aspectFill" :lazy-load="true"></image>
+                  </view>
+                  <view class="category-name">
+                    {{items.name}}
+                  </view>
+                </view>
+              </block>
+            </view>
           </view>
-          <view v-else>
-            <category v-if="index===categoryCurrent+1 || index===categoryCurrent-1 || index===categoryCurrent" :parentId='items.id'
-                          :topHeight='topHeight' :refresher='refresher' :loadFlag='index===categoryCurrent'>
-            </category>
-          </view>
-        </swiper-item>
-      </swiper>
+        </view>
+      </view>
+      <view class="body-container">
+        <swiper class="page-swiper" :disable-touch='canswiper' duration="200" :current='categoryCurrent' @change='changeCatepage' @transition='swiperTransition' @animationfinish='stopSwiper'>
+          <swiper-item v-for="(items,index) in categoryList" :key='index' :current-item-id='items.cid'>
+            <view v-if='index===0'>
+              <home ref='indexPage' :refresher='refresher' :fixedClass='fixedClass' @scrolltoTop='scrollToTop' @scrolltoview='scrollToView'
+                     @pushfixed='getFixed' @scrollNum='getScroll' :topHeight='topHeight' @passColor='getColor'></home>
+            </view>
+            <view v-else>
+              <category v-if="index===categoryCurrent+1 || index===categoryCurrent-1 || index===categoryCurrent" :parentId='items.id'
+                        :topHeight='topHeight' :refresher='refresher' :loadFlag='index===categoryCurrent'>
+              </category>
+            </view>
+          </swiper-item>
+        </swiper>
+      </view>
     </view>
   </view>
 </template>
 
 <script>
-import index from './swiper';
-import category from './swiper/category.vue';
+import home from '@/pages/tabbar/main/swiper/home';
+import category from '@/pages/tabbar/main/swiper/category.vue';
 import {getLevelCategroy} from "@/faasmall/api/category";
 import { mapMutations, mapActions, mapState, mapGetters } from 'vuex';
 import jwt from '@/faasmall/utils/cache/jwt.js';
 import {http} from "@/faasmall/utils/request/service";
 import setting from "@/faasmall/common/config";
+// 获取系统状态栏的高度
+let systemInfo = uni.getSystemInfoSync();
 export default {
   components: {
-    index,
+    home,
     category
   },
   data() {
     return {
+      navHeight:0,
+      titleHeight: 0,
       isConnected: true, //是否有网
       isRefresh: true,
       shareShow: false,
       bannerColor: '',
       categoryModel: false,
       topHeight: 0,
+      statusBarHeight: systemInfo.statusBarHeight,
       categoryCurrent: 0,
       current: 1,
       scrollTop: 0,
@@ -112,7 +120,7 @@ export default {
   },
   onShow() {
     var that = this;
-    jwt.isLogin() && this.getCartList();
+    jwt.getLogin() && this.getCartList();
     // 网络变化检测
     uni.onNetworkStatusChange(res => {
       that.isConnected = res.isConnected;
@@ -124,13 +132,15 @@ export default {
   },
   watch: {},
   computed: {
-    ...mapGetters(['shopData']),
+    ...mapGetters(['isLogin','shopData']),
+    searchStyle(){
+      let style = {};
+      style.background = (this.categoryCurrent>0?'#EE1B14':(this.scrollTop>30?'#EE1B14;':this.bannerColor) +';');
+      return style;
+    }
   },
   methods: {
-    ...mapActions(['faasmallInit', 'getCartList']),
-    onPullDownRefresh() {
-      //this.init();
-    },
+    ...mapActions(['faaSmallInit', 'getCartList']),
     //初始化数据
     init(){
       if(this.categoryList){
@@ -145,7 +155,7 @@ export default {
       this.nowcurrentid = ''
       this.scrollleftnum = this.rowLeft
       this.$nextTick(()=>{
-        this.nowcurrentid = 'category-items-active'
+        this.nowcurrentid = 'category-itefaas-active'
       })
     },
     getCategoryList() {
@@ -180,7 +190,7 @@ export default {
       this.scrollindex = 0
     },
     scrollMorePage() {
-      if (this.categoryCurrent == 0) {
+      if (this.categoryCurrent === 0) {
         this.$refs.indexPage[0].getNextPage()
       }
     },
@@ -192,11 +202,11 @@ export default {
     },
     // 路由跳转
     goPath(url) {
-      if (url == 'search') {
+      if (url === 'search') {
         uni.navigateTo({
           url: '../search/search'
         })
-      } else if (url == 'officialNotice') {
+      } else if (url === 'officialNotice') {
         uni.navigateTo({
           url: './officialNotice'
         })
@@ -226,6 +236,18 @@ export default {
         console.log("得到布局位置信息" + JSON.stringify(data));
         this.topHeight = data.height
       }).exec();
+      // 状态栏高度
+      let statusBarHeight = uni.getSystemInfoSync().statusBarHeight
+      // #ifdef MP-WEIXIN
+      // 获取微信胶囊的位置信息 width,height,top,right,left,bottom
+      const custom = wx.getMenuButtonBoundingClientRect()
+      // console.log(custom)
+      // 导航栏高度(标题栏高度) = 胶囊高度 + (顶部距离 - 状态栏高度) * 2
+      let navigationBarHeight = custom.height + (custom.top - statusBarHeight) * 2
+      // console.log("导航栏高度："+this.globalData.navigationBarHeight)
+      // 总体高度 = 状态栏高度 + 导航栏高度
+      this.navHeight = navigationBarHeight + statusBarHeight
+      // #endif
     },
     goDetail(info) {
       console.log(info);
@@ -267,7 +289,7 @@ export default {
     width: 100%;
     box-sizing: border-box;
     position: fixed;
-    top: 0;
+    //top: 0;
     left: 0;
     padding: 0 32rpx;
     z-index: 600;
@@ -347,7 +369,7 @@ export default {
             }
           }
 
-          .category-items-active {
+          .category-itefaas-active {
             .categoryname {
               font-size: 32rpx;
               font-weight: 400;

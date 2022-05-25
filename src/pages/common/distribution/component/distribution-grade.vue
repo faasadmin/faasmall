@@ -1,42 +1,42 @@
 <template>
-  <view>
+  <view >
     <view class="swiper-item-content">
       <view class="col-center-center" style="height: 100%;padding: 20rpx">
         <view class="row-center-center" style="height: 80rpx;width: 100%">
-          <text>普通等级</text>
+          <text>{{grade.name}}</text>
         </view>
         <view class="row-center-between" style="width: 100%;">
           <view class="col-center-center">
-            <u-circle-progress active-color="#2979ff"  :percent="80" width="150">
+            <u-circle-progress active-color="#2979ff" :percent="grade.first" width="150">
               <view class="u-progress-content">
                 <view class="u-progress-dot"></view>
-                <text class='u-progress-info'>查找中</text>
+                <text class='u-progress-info'>{{grade.first}}%</text>
               </view>
             </u-circle-progress>
             <view>
-              <text>一级</text>
+              <text>{{distributionOtherData.one}}</text>
             </view>
           </view>
           <view class="col-center-center">
-            <u-circle-progress active-color="#2979ff" :percent="80" width="150">
+            <u-circle-progress active-color="#2979ff" :percent="grade.second" width="150">
               <view class="u-progress-content">
                 <view class="u-progress-dot"></view>
-                <text class='u-progress-info'>查找中</text>
+                <text class='u-progress-info'>{{grade.second}}%</text>
               </view>
             </u-circle-progress>
             <view>
-              <text>二级</text>
+              <text>{{distributionOtherData.two}}</text>
             </view>
           </view>
           <view class="col-center-center">
-            <u-circle-progress active-color="#2979ff" :percent="80" width="150">
+            <u-circle-progress active-color="#2979ff" :percent="grade.third" width="150">
               <view class="u-progress-content">
                 <view class="u-progress-dot"></view>
-                <text class='u-progress-info'>查找中</text>
+                <text class='u-progress-info'>{{grade.third}}%</text>
               </view>
             </u-circle-progress>
             <view>
-              <text>三级</text>
+              <text>{{distributionOtherData.three}}</text>
             </view>
           </view>
         </view>
@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import {mapGetters} from "vuex";
 export default {
   name: "member-grade",
   data() {
@@ -57,6 +58,9 @@ export default {
       bgColor2: '',
       showModal: false
     };
+  },
+  computed: {
+    ...mapGetters(['isLogin','memberInfo','shopData','distributionOtherData']),
   },
   props: {
     grade: {

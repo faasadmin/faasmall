@@ -1,6 +1,5 @@
 <template>
     <view>
-      <faasmall-navbar title="会员特权说明" :is-back="true"></faasmall-navbar>
       <view class="privilege-swiper">
         <u-swiper :list="list" mode="none" :autoplay="false" :effect3d="true" :current="current" @change="changeSwiper"></u-swiper>
       </view>

@@ -1,12 +1,11 @@
 <template>
   <view>
-    <faasmall-navbar title="分销提现" :is-back="true"></faasmall-navbar>
     <u-toast ref="uToast" />
     <view style="padding: 20rpx">
       <view>
         <view style="background: #FFFFFF;height: 200rpx;padding: 20rpx" class="col-center-between">
             <view>可提现佣金</view>
-            <view>￥{{userInfo.commission}}</view>
+            <view>￥{{memberData.commission}}</view>
             <view @tap="$Router.push('/pages/common/distribution/withdraw_list')"><text>我的提现</text><text class="iconfont icon-page-next"></text></view>
         </view>
       </view>
@@ -75,7 +74,7 @@ export default {
         account: '',
         type:'',
         model:'1',
-        amount:'',
+        amount:undefined,
         bank:'',
         mobile:'',
         qr:'',
@@ -119,7 +118,7 @@ export default {
     this.init();
   },
   computed: {
-    ...mapGetters(['userInfo']),
+    ...mapGetters(['memberData']),
   },
   methods:{
     init(){
@@ -131,7 +130,7 @@ export default {
       })
     },
     onAll(){
-      this.from.amount = '';
+      this.form.amount = '';
     },
     onWithdrawalMethod(){
       this.withdrawalTypeShow = true;
@@ -195,7 +194,7 @@ export default {
           return;
         }
         applyWithdraw(this.form).then(res => {
-          if (res.code == 200){
+          if (res.code === 200){
             this.$refs.uToast.show({
               title: '申请成功',
               type: 'success'

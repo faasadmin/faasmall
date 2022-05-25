@@ -24,7 +24,7 @@
                 <image class="title-tag" :src="service.img" mode=""></image>
                 <text class="serve-title">{{ service.name }}</text>
               </view>
-              <view class="serve-detail">{{ service.remark }}</view>
+              <view class="serve-detail" v-if="service.remark">{{ service.remark }}</view>
             </view>
           </view>
         </view>
@@ -34,11 +34,6 @@
 </template>
 
 <script>
-/**
- * 商品服务卡片
- * @property {Array} serviceList - 商品服务列表
- * @property {Boolean} showModal- 显隐
- */
 export default {
   components: {},
   data() {

@@ -1,5 +1,6 @@
 import { mapState } from 'vuex'
 import store from "@/faasmall/store/index"
+import setting from "@/pages/common/tool/setting";
 
 // 尝试将用户在根目录中的store/index.js的vuex的state变量，全部加载到全局变量中
 let $uStoreKey = [];

@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import storage from '../utils/storage.js'
-import user from './modules/user.js';
+import member from './modules/member.js';
 import faasmall from './modules/faasmall.js';
 import cart from './modules/cart.js';
 import good from './modules/good.js';
@@ -35,7 +35,7 @@ const saveLifeData = function(key, value){
 }
 const store = new Vuex.Store({
 	modules: {
-		user,
+		member,
 		faasmall,
 		cart,
 		good,

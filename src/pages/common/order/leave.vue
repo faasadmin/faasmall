@@ -1,9 +1,8 @@
 <template>
   <view>
-    <faasmall-navbar title="买家留言" :is-back="true"></faasmall-navbar>
     <view style="padding: 20rpx;">
       <view style="background: #FFFFFF;padding: 20rpx">
-        <u-input v-model="message" placeholder="请输入买家留言" maxlength="40" type="textarea" :border="false" height="100" :auto-height="true" />
+        <u-input v-model="comments" placeholder="请输入买家留言" maxlength="40" type="textarea" :border="false" height="100" :auto-height="true" />
       </view>
     </view>
     <view style="padding: 20rpx">
@@ -19,11 +18,13 @@ export default {
 
   },
   onLoad(options){
-    this.message = JSON.parse(decodeURIComponent(options.message))
+    if(options.comments){
+      this.comments = decodeURIComponent(options.comments);
+    }
   },
   data(){
     return{
-      message:'',
+      comments:'',
     }
   },
   methods:{
@@ -32,7 +33,7 @@ export default {
       var prevPage = pages[pages.length - 2]; //上一个页面
       //直接调用上一个页面的setData()方法，把数据存到上一个页面中去
       // 上一个页面最后设置userdata
-      prevPage.message = this.message;
+      prevPage.comments = this.comments;
       uni.navigateBack({//返回
         delta: 1
       })

@@ -286,7 +286,7 @@ page {
     );
     background: -webkit-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
     background: -o-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
-    background: -ms-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
+    background: -faas-linear-gradient(left, #fa4dbe 0, #fbaa58 100%);
     background: linear-gradient(to left, #fa4dbe 0, #fbaa58 100%);
   }
 

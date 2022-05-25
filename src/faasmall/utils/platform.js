@@ -6,21 +6,20 @@ import {
 } from '@/faasmall/common/router';
 // #endif
 export default {
-
 	// 获取当前运行平台
 	get() {
 		let platform = '';
 		// #ifdef H5
-		wxsdk.isWechat() ? (platform = 'wxOfficialAccount') : (platform = 'H5');
+		wxsdk.isWechat() ? (platform = 'wx_mp_account') : (platform = 'h5');
 		// #endif
 		// #ifdef APP-PLUS
 		platform = 'app';
 		// #endif
 		// #ifdef MP-WEIXIN
-		platform = 'wxMiniProgram';
+		platform = 'wx_ma_program';
 		// #endif
 		// #ifdef MP-ALIPAY
-		platform = 'alipayMiniProgram';
+		platform = 'zfb_mini_program';
 		// #endif
 		if (platform !== '') {
 			uni.setStorageSync('platform', platform);
@@ -56,7 +55,6 @@ export default {
 
 	// 处理wechat jssdk 签名网址
 	entry() {
-		let that = this;
 		var entryUrl = location.href;
 		if (this.device() === 'ios') {
 			if (typeof(location.entryUrl) !== 'undefined') {
